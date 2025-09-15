@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Mechanic Partners - Connect Mechanics with Customers</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/notifications.css">
+    <script src="js/api.js" defer></script>
+    <script src="js/notification-service.js" defer></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Urban Mechanic Partners</div>
+            <ul class="nav-links">
+                <li><a href="#">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <!-- Find Mechanics button removed -->
+                <li><a href="/customer" class="btn-secondary">Customer Website</a></li>
+                <li><a href="login.html" class="btn-login">Login</a></li>
+            </ul>
+    </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Join Our Network of Professional Mechanics</h1>
+                <p>Register your services and connect with customers in your area</p>
+                <div class="cta-buttons">
+                    <a href="register.html" class="btn btn-primary">Register as Mechanic</a>
+                    <a href="customer-register.html" class="btn btn-secondary">Register as Customer</a>
+                    <!-- Find Nearby Mechanics button removed -->
+                    <a href="#how-it-works" class="btn btn-secondary">Learn More</a>
+            </div>
+        </div>
+        </section>
+
+        <section class="about" id="about">
+        <div class="container">
+                <h2>About Us</h2>
+                <div class="about-content">
+                    <div class="about-text">
+                        <p>Welcome to UrbanMechanic Partners, where skilled automotive professionals connect with customers in need. Our platform bridges the gap between mechanics looking for opportunities and vehicle owners seeking reliable service.</p>
+                        <p>We believe in empowering mechanics with the tools they need to grow their business while providing vehicle owners with quick access to qualified professionals in their area.</p>
+                        <p>Join our network today and be part of a community that values expertise, reliability, and customer satisfaction.</p>
+                </div>
+                    <div class="about-image">
+                        <img src="images/mechanic-team.svg" alt="Mechanic Team" class="placeholder-image">
+                </div>
+            </div>
+        </div>
+    </section>
+
+        <section id="how-it-works" class="how-it-works">
+        <div class="container">
+                <h2>How It Works</h2>
+            <div class="steps">
+                    <div class="step">
+                        <div class="step-icon">1</div>
+                        <h3>Register</h3>
+                        <p>Create your professional profile with your skills, experience, and service area</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">2</div>
+                        <h3>Get Notified</h3>
+                        <p>Receive real-time alerts when customers in your area need mechanical assistance</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">3</div>
+                        <h3>Connect</h3>
+                        <p>Respond to requests and connect with customers who need your expertise</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">4</div>
+                        <h3>Grow</h3>
+                        <p>Build your reputation with customer reviews and grow your business</p>
+            </div>
+            </div>
+        </div>
+    </section>
+
+        <section id="services" class="services">
+        <div class="container">
+                <h2>Our Services</h2>
+                <div class="service-cards">
+                    <div class="service-card">
+                        <div class="service-icon">🔧</div>
+                        <h3>Mechanic Registration</h3>
+                        <p>Create your professional profile and showcase your skills and services</p>
+            </div>
+                    <div class="service-card">
+                        <div class="service-icon">🔔</div>
+                        <h3>Real-time Notifications</h3>
+                        <p>Get instant alerts when customers in your area need assistance</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">📍</div>
+                        <h3>Location Services</h3>
+                        <p>Be discoverable by customers searching for nearby mechanics</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">⭐</div>
+                        <h3>Reviews & Ratings</h3>
+                        <p>Build your reputation through customer feedback and ratings</p>
+            </div>
+            </div>
+        </div>
+    </section>
+
+        <section id="testimonials" class="testimonials">
+        <div class="container">
+                <h2>Mechanic Success Stories</h2>
+                <div class="testimonial-slider">
+                    <div class="testimonial">
+                        <p class="quote">"Since joining UrbanMechanic Partners, my customer base has grown by 40%. The notification system ensures I never miss a potential job in my area."</p>
+                        <div class="testimonial-author">
+                            <div class="author-name">John D.</div>
+                            <div class="author-title">Auto Mechanic, 8 years experience</div>
+            </div>
+                    </div>
+            </div>
+        </div>
+    </section>
+
+        <section id="contact" class="contact">
+        <div class="container">
+                <h2>Contact Us</h2>
+                <div class="contact-content">
+                    <div class="contact-form">
+                        <form id="contactForm">
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="text" id="name" name="name" required>
+            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" required>
+                    </div>
+                            <div class="form-group">
+                                <label for="message">Message</label>
+                                <textarea id="message" name="message" rows="5" required></textarea>
+                        </div>
+                            <button type="submit" class="btn btn-primary">Send Message</button>
+                        </form>
+                        </div>
+                    <div class="contact-info">
+                        <div class="info-item">
+                            <div class="info-icon">📧</div>
+                            <div class="info-text">support@urbanmechanicpartners.com</div>
+                    </div>
+                        <div class="info-item">
+                            <div class="info-icon">📞</div>
+                            <div class="info-text">+1 (555) 123-4567</div>
+                    </div>
+                        <div class="info-item">
+                            <div class="info-icon">📍</div>
+                            <div class="info-text">123 Mechanic Street, Auto City, AC 12345</div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">UrbanMechanic Partners</div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Company</h4>
+                        <ul>
+                            <li><a href="#about">About Us</a></li>
+                            <li><a href="#services">Services</a></li>
+                            <li><a href="#contact">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>For Mechanics</h4>
+                        <ul>
+                            <li><a href="register.html">Register</a></li>
+                            <li><a href="login.html">Login</a></li>
+                            <li><a href="#">FAQ</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <ul>
+                            <li><a href="#">Terms of Service</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 UrbanMechanic Partners. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="scripts.js"></script>
+</body>
+</html>

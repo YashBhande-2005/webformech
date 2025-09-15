@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Other Website</title>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+      const socket = io();
+      socket.on('notification', function(data) {
+        alert('Notification: ' + data.message);
+      });
+
+      // Update Find Mechanic UI when a mechanic logs in
+      socket.on('mechanic:login', function(user) {
+        appendMechanicToList(user, 'logged in');
+      });
+
+      // Online/offline events
+      socket.on('mechanic:online', function(user) {
+        appendMechanicToList(user, 'online');
+      });
+      socket.on('mechanic:offline', function(info) {
+        removeMechanicFromList(info.id);
+      });
+
+      function appendMechanicToList(user, note) {
+        console.log('Mechanic event:', user, note);
+        let list = document.getElementById('available-mechanics');
+        if (!list) {
+          list = document.createElement('ul');
+          list.id = 'available-mechanics';
+          document.body.appendChild(list);
+        }
+        const existing = document.getElementById('mech-' + user.id);
+        if (existing) return; // already listed
+        const item = document.createElement('li');
+        item.id = 'mech-' + user.id;
+        item.textContent = `${user.name} (${user.email}) - ${note}`;
+        list.appendChild(item);
+      }
+
+      function removeMechanicFromList(id) {
+        const el = document.getElementById('mech-' + id);
+        if (el) el.remove();
+      }
+
+      // On load, fetch currently online mechanics
+      fetch('http://localhost:3000/api/v1/online-mechanics')
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.data) {
+            data.data.forEach(u => appendMechanicToList(u, 'online'));
+          }
+        }).catch(() => {});
+    </script>
+</head>
+<body>
+    <h1>Welcome to the Other Website</h1>
+    <p>This site is served from /other and receives real-time notifications.</p>
+</body>
+</html>

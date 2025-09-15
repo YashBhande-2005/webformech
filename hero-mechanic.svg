@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <!-- Background Elements -->
+  <rect x="0" y="0" width="800" height="600" fill="#f5f5f5" opacity="0.1"/>
+  
+  <!-- Road -->
+  <rect x="0" y="500" width="800" height="100" fill="#5E5E5E"/>
+  <rect x="50" y="550" width="100" height="10" fill="#FFFFFF" opacity="0.7"/>
+  <rect x="250" y="550" width="100" height="10" fill="#FFFFFF" opacity="0.7"/>
+  <rect x="450" y="550" width="100" height="10" fill="#FFFFFF" opacity="0.7"/>
+  <rect x="650" y="550" width="100" height="10" fill="#FFFFFF" opacity="0.7"/>
+  
+  <!-- Service Van -->
+  <g transform="translate(500, 450) scale(0.8)">
+    <!-- Van Body -->
+    <rect x="50" y="100" width="300" height="120" rx="20" fill="#FFC300"/>
+    <rect x="50" y="220" width="300" height="80" rx="10" fill="#FFC300"/>
+    
+    <!-- Van Front -->
+    <rect x="350" y="150" width="80" height="150" rx="10" fill="#FFC300"/>
+    
+    <!-- Windows -->
+    <rect x="370" y="170" width="40" height="60" rx="5" fill="#333333" opacity="0.7"/>
+    <rect x="70" y="130" width="80" height="60" rx="5" fill="#333333" opacity="0.7"/>
+    
+    <!-- Wheels -->
+    <circle cx="120" cy="300" r="30" fill="#333333"/>
+    <circle cx="120" cy="300" r="15" fill="#666666"/>
+    <circle cx="320" cy="300" r="30" fill="#333333"/>
+    <circle cx="320" cy="300" r="15" fill="#666666"/>
+    
+    <!-- Logo -->
+    <rect x="180" y="150" width="100" height="60" rx="10" fill="#5E5E5E"/>
+    <text x="190" y="185" font-family="Arial" font-size="16" font-weight="bold" fill="#FFFFFF">URBAN</text>
+    <text x="190" y="205" font-family="Arial" font-size="16" font-weight="bold" fill="#FFC300">MECHANIC</text>
+  </g>
+  
+  <!-- Mechanic -->
+  <g transform="translate(200, 400) scale(0.7)">
+    <!-- Body -->
+    <rect x="100" y="150" width="80" height="120" rx="10" fill="#5E5E5E"/>
+    
+    <!-- Head -->
+    <circle cx="140" cy="120" r="40" fill="#F5D0A9"/>
+    
+    <!-- Cap -->
+    <path d="M100 110 Q140 70 180 110" stroke="#FFC300" stroke-width="10" fill="#FFC300"/>
+    
+    <!-- Face -->
+    <circle cx="125" cy="110" r="5" fill="#333333"/>
+    <circle cx="155" cy="110" r="5" fill="#333333"/>
+    <path d="M125 140 Q140 150 155 140" stroke="#333333" stroke-width="3" fill="transparent"/>
+    
+    <!-- Arms -->
+    <rect x="50" y="160" width="50" height="20" rx="10" fill="#F5D0A9"/>
+    <rect x="180" y="160" width="50" height="20" rx="10" fill="#F5D0A9"/>
+    
+    <!-- Hands -->
+    <circle cx="50" cy="170" r="10" fill="#F5D0A9"/>
+    <circle cx="230" cy="170" r="10" fill="#F5D0A9"/>
+    
+    <!-- Legs -->
+    <rect x="100" y="270" width="30" height="80" rx="10" fill="#333333"/>
+    <rect x="150" y="270" width="30" height="80" rx="10" fill="#333333"/>
+    
+    <!-- Feet -->
+    <rect x="90" y="350" width="40" height="10" rx="5" fill="#333333"/>
+    <rect x="150" y="350" width="40" height="10" rx="5" fill="#333333"/>
+    
+    <!-- Tool Box -->
+    <rect x="240" y="170" width="60" height="40" rx="5" fill="#FFC300"/>
+    <rect x="265" y="160" width="10" height="10" fill="#5E5E5E"/>
+  </g>
+  
+  <!-- City Skyline Background -->
+  <g opacity="0.2">
+    <rect x="50" y="200" width="40" height="300" fill="#5E5E5E"/>
+    <rect x="100" y="250" width="40" height="250" fill="#5E5E5E"/>
+    <rect x="150" y="150" width="40" height="350" fill="#5E5E5E"/>
+    <rect x="200" y="300" width="40" height="200" fill="#5E5E5E"/>
+    <rect x="600" y="200" width="40" height="300" fill="#5E5E5E"/>
+    <rect x="650" y="250" width="40" height="250" fill="#5E5E5E"/>
+    <rect x="700" y="150" width="40" height="350" fill="#5E5E5E"/>
+    <rect x="750" y="300" width="40" height="200" fill="#5E5E5E"/>
+  </g>
+  
+  <!-- SOS Signal -->
+  <g transform="translate(650, 150)">
+    <circle cx="0" cy="0" r="40" fill="#FFC300" opacity="0.2">
+      <animate attributeName="r" values="40;60;40" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.2;0.1;0.2" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="0" cy="0" r="30" fill="#FFC300" opacity="0.3">
+      <animate attributeName="r" values="30;45;30" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;0.2;0.3" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="0" cy="0" r="20" fill="#FFC300" opacity="0.4">
+      <animate attributeName="r" values="20;30;20" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.4;0.3;0.4" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <text x="-20" y="5" font-family="Arial" font-size="16" font-weight="bold" fill="#5E5E5E">SOS</text>
+  </g>
+</svg>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Other Website</title>
+    <script src="js/api.js" defer></script>
+</head>
+<body>
+    <h2>Login (Other Website)</h2>
+    <form id="loginForm">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br>
+        <button type="submit">Login</button>
+        <div id="loginError" style="color:red;"></div>
+    </form>
+    <script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        document.getElementById('loginError').textContent = '';
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        try {
+            const response = await window.API.auth.login({ email, password });
+                        if (response && (response.success || response.token)) {
+                                alert('Login successful!');
+                                // Connect Socket.IO and identify as mechanic
+                                const script = document.createElement('script');
+                                script.src = 'https://cdn.socket.io/4.7.5/socket.io.min.js';
+                                script.onload = () => {
+                                    const socket = io('http://localhost:3000');
+                                    const user = response.user || response.data;
+                                    if (user && user.role === 'mechanic') {
+                                        socket.emit('mechanic:identify', { token: response.token, user });
+                                    }
+                                };
+                                document.head.appendChild(script);
+            } else {
+                const errorMsg = response.message || response.error || 'Login failed.';
+                document.getElementById('loginError').textContent = errorMsg;
+            }
+        } catch (error) {
+            document.getElementById('loginError').textContent = `Login failed: ${error.message}`;
+        }
+    });
+    </script>
+</body>
+</html>

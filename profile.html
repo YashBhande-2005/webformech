@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mechanic Profile - Urban Mechanic Partners</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/notifications.css">
+    <link rel="stylesheet" href="css/profile.css">
+    <script src="js/api.js" defer></script>
+    <script src="js/notification-service.js" defer></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Urban Mechanic Partners</div>
+            <ul class="nav-links">
+                <li><a href="mechanic-dashboard.html">Dashboard</a></li>
+                <li><a href="profile.html" class="active">My Profile</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li>
+                    <div class="notification-icon-container">
+                        <a href="#" id="notification-bell" class="notification-bell">
+                            <span class="bell-icon">🔔</span>
+                            <span id="notification-count" class="notification-count">0</span>
+                        </a>
+                        <div id="notification-dropdown" class="notification-dropdown">
+                            <div class="notification-header">
+                                <h3>Notifications</h3>
+                                <button id="mark-all-read">Mark all as read</button>
+                            </div>
+                            <div id="notification-list" class="notification-list">
+                                <div class="empty-notification">No new notifications</div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li><a href="#" id="logout">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="back-link">
+                <a href="mechanic-dashboard.html">← Back to Dashboard</a>
+            </div>
+            
+            <div class="profile-header">
+                <h1>My Profile</h1>
+                <button id="edit-profile" class="btn btn-primary">Edit Profile</button>
+            </div>
+            
+            <div class="profile-content">
+                <div class="profile-sidebar">
+                    <div class="profile-card">
+                        <div class="profile-image">
+                            <img id="profile-avatar" src="images/default-avatar.png" alt="Profile Picture">
+                            <button id="change-avatar" class="change-avatar-btn">Change</button>
+                        </div>
+                        <div class="profile-info">
+                            <h2 id="profile-name">Loading...</h2>
+                            <p id="profile-role">Mechanic</p>
+                            <div class="profile-rating">
+                                <span id="profile-rating-value">0.0</span>
+                                <div class="stars">
+                                    <span class="star">★</span>
+                                    <span class="star">★</span>
+                                    <span class="star">★</span>
+                                    <span class="star">★</span>
+                                    <span class="star">★</span>
+                                </div>
+                                <span id="profile-review-count">(0 reviews)</span>
+                            </div>
+                        </div>
+                        <div class="profile-status">
+                            <div class="status-indicator">
+                                <span id="status-dot" class="status-dot offline"></span>
+                                <span id="status-text">Offline</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="availability-toggle">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-card">
+                        <h3>Contact Information</h3>
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <span class="contact-label">Email:</span>
+                                <span id="profile-email">Loading...</span>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-label">Phone:</span>
+                                <span id="profile-phone">Loading...</span>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-label">Location:</span>
+                                <span id="profile-location">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-card">
+                        <h3>Account Information</h3>
+                        <div class="account-info">
+                            <div class="account-item">
+                                <span class="account-label">Member Since:</span>
+                                <span id="profile-member-since">Loading...</span>
+                            </div>
+                            <div class="account-item">
+                                <span class="account-label">Last Login:</span>
+                                <span id="profile-last-login">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="account-actions">
+                            <button id="change-password" class="btn btn-text">Change Password</button>
+                            <button id="update-email" class="btn btn-text">Update Email</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="profile-main">
+                    <div class="profile-card">
+                        <div class="card-header">
+                            <h3>About Me</h3>
+                            <button id="edit-about" class="btn btn-text">Edit</button>
+                        </div>
+                        <div class="about-content" id="about-content">
+                            <p id="profile-bio">Loading bio information...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-card">
+                        <div class="card-header">
+                            <h3>Services</h3>
+                            <button id="add-service" class="btn btn-text">Add Service</button>
+                        </div>
+                        <div class="services-list" id="services-list">
+                            <p class="loading-message">Loading services...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-card">
+                        <div class="card-header">
+                            <h3>Specialties</h3>
+                            <button id="edit-specialties" class="btn btn-text">Edit</button>
+                        </div>
+                        <div class="specialties-list" id="specialties-list">
+                            <p class="loading-message">Loading specialties...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-card">
+                        <div class="card-header">
+                            <h3>Recent Reviews</h3>
+                            <a href="#all-reviews" class="btn btn-text">View All</a>
+                        </div>
+                        <div class="reviews-list" id="reviews-list">
+                            <p class="loading-message">Loading reviews...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Edit Profile Modal -->
+    <div id="edit-profile-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Profile</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="profile-form">
+                    <div class="form-group">
+                        <label for="edit-name">Full Name</label>
+                        <input type="text" id="edit-name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-phone">Phone Number</label>
+                        <input type="tel" id="edit-phone" name="phone" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-location">Location</label>
+                        <input type="text" id="edit-location" name="location" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-bio">About Me</label>
+                        <textarea id="edit-bio" name="bio" rows="4"></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" id="cancel-profile-edit">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Service Modal -->
+    <div id="add-service-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Service</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="service-form">
+                    <div class="form-group">
+                        <label for="service-name">Service Name</label>
+                        <input type="text" id="service-name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="service-description">Description</label>
+                        <textarea id="service-description" name="description" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="service-price">Base Price ($)</label>
+                        <input type="number" id="service-price" name="price" min="0" step="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="service-duration">Estimated Duration (minutes)</label>
+                        <input type="number" id="service-duration" name="duration" min="15" step="15" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Add Service</button>
+                        <button type="button" class="btn btn-secondary" id="cancel-service-add">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Specialties Modal -->
+    <div id="specialties-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Specialties</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="specialties-form">
+                    <div class="specialties-options" id="specialties-options">
+                        <p class="loading-message">Loading specialties options...</p>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Specialties</button>
+                        <button type="button" class="btn btn-secondary" id="cancel-specialties-edit">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="password-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Change Password</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="password-form">
+                    <div class="form-group">
+                        <label for="current-password">Current Password</label>
+                        <input type="password" id="current-password" name="currentPassword" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new-password">New Password</label>
+                        <input type="password" id="new-password" name="newPassword" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm New Password</label>
+                        <input type="password" id="confirm-password" name="confirmPassword" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Change Password</button>
+                        <button type="button" class="btn btn-secondary" id="cancel-password-change">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">Urban Mechanic Partners</div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Dashboard</h4>
+                        <ul>
+                            <li><a href="mechanic-dashboard.html">Overview</a></li>
+                            <li><a href="profile.html">My Profile</a></li>
+                            <li><a href="schedule.html">Schedule</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Support</h4>
+                        <ul>
+                            <li><a href="#">Help Center</a></li>
+                            <li><a href="#">Contact Support</a></li>
+                            <li><a href="#">FAQ</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <ul>
+                            <li><a href="#">Terms of Service</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Urban Mechanic Partners. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            setupNotifications();
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            try {
+                const userData = await API.auth.getMe();
+                
+                if (!userData.success || userData.data.role !== 'mechanic') {
+                    localStorage.removeItem('token');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                // Load mechanic profile data
+                loadMechanicProfile(userData.data._id);
+                
+                // Setup modal triggers
+                setupModalTriggers();
+                
+                // Setup form submissions
+                setupFormSubmissions(userData.data._id);
+                
+                // Setup availability toggle
+                setupAvailabilityToggle(userData.data._id);
+                
+                // Setup logout
+                document.getElementById('logout').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    API.auth.logout()
+                        .then(() => {
+                            localStorage.removeItem('token');
+                            window.location.href = 'index.html';
+                        })
+                        .catch(error => {
+                            console.error('Logout error:', error);
+                            localStorage.removeItem('token');
+                            window.location.href = 'index.html';
+                        });
+                });
+                
+            } catch (error) {
+                console.error('Authentication error:', error);
+                localStorage.removeItem('token');
+                window.location.href = 'login.html';
+            }
+        });
+
+        async function loadMechanicProfile(mechanicId) {
+            try {
+                const response = await API.mechanics.getProfile(mechanicId);
+                
+                if (response.success) {
+                    const profile = response.data;
+                    
+                    // Update profile information
+                    document.getElementById('profile-name').textContent = profile.name;
+                    document.getElementById('profile-email').textContent = profile.email;
+                    document.getElementById('profile-phone').textContent = profile.phone || 'Not provided';
+                    document.getElementById('profile-location').textContent = profile.location || 'Not provided';
+                    document.getElementById('profile-bio').textContent = profile.bio || 'No bio information provided.';
+                    
+                    // Update profile image if available
+                    if (profile.avatar) {
+                        document.getElementById('profile-avatar').src = profile.avatar;
+                    }
+                    
+                    // Update rating
+                    const rating = profile.rating || 0;
+                    document.getElementById('profile-rating-value').textContent = rating.toFixed(1);
+                    document.getElementById('profile-review-count').textContent = `(${profile.reviewCount || 0} reviews)`;
+                    
+                    // Update stars display
+                    updateStarsDisplay(rating);
+                    
+                    // Update availability status
+                    const availabilityToggle = document.getElementById('availability-toggle');
+                    availabilityToggle.checked = profile.isAvailable;
+                    updateStatusDisplay(profile.isAvailable);
+                    
+                    // Update account information
+                    if (profile.createdAt) {
+                        document.getElementById('profile-member-since').textContent = new Date(profile.createdAt).toLocaleDateString();
+                    }
+                    if (profile.lastLogin) {
+                        document.getElementById('profile-last-login').textContent = new Date(profile.lastLogin).toLocaleDateString();
+                    }
+                    
+                    // Load services
+                    loadMechanicServices(mechanicId);
+                    
+                    // Load specialties
+                    loadMechanicSpecialties(mechanicId);
+                    
+                    // Load reviews
+                    loadMechanicReviews(mechanicId);
+                    
+                    // Pre-fill edit form
+                    document.getElementById('edit-name').value = profile.name;
+                    document.getElementById('edit-phone').value = profile.phone || '';
+                    document.getElementById('edit-location').value = profile.location || '';
+                    document.getElementById('edit-bio').value = profile.bio || '';
+                }
+            } catch (error) {
+                console.error('Error loading mechanic profile:', error);
+            }
+        }
+
+        function updateStarsDisplay(rating) {
+            const stars = document.querySelectorAll('.stars .star');
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            
+            stars.forEach((star, index) => {
+                if (index < fullStars) {
+                    star.classList.add('filled');
+                } else if (index === fullStars && hasHalfStar) {
+                    star.classList.add('half');
+                } else {
+                    star.classList.remove('filled', 'half');
+                }
+            });
+        }
+
+        function updateStatusDisplay(isAvailable) {
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            
+            if (isAvailable) {
+                statusDot.classList.remove('offline');
+                statusDot.classList.add('online');
+                statusText.textContent = 'Available';
+            } else {
+                statusDot.classList.remove('online');
+                statusDot.classList.add('offline');
+                statusText.textContent = 'Offline';
+            }
+        }
+
+        async function loadMechanicServices(mechanicId) {
+            try {
+                const response = await API.mechanics.getServices(mechanicId);
+                const servicesList = document.getElementById('services-list');
+                
+                if (response.success && response.data.length > 0) {
+                    servicesList.innerHTML = '';
+                    
+                    response.data.forEach(service => {
+                        const serviceElement = document.createElement('div');
+                        serviceElement.className = 'service-item';
+                        serviceElement.innerHTML = `
+                            <div class="service-header">
+                                <h4>${service.name}</h4>
+                                <div class="service-actions">
+                                    <button class="btn btn-icon edit-service" data-id="${service._id}">✏️</button>
+                                    <button class="btn btn-icon delete-service" data-id="${service._id}">🗑️</button>
+                                </div>
+                            </div>
+                            <p class="service-description">${service.description}</p>
+                            <div class="service-details">
+                                <span class="service-price">$${service.price.toFixed(2)}</span>
+                                <span class="service-duration">${service.duration} min</span>
+                            </div>
+                        `;
+                        servicesList.appendChild(serviceElement);
+                    });
+                    
+                    // Setup service action buttons
+                    setupServiceActions(mechanicId);
+                    
+                } else {
+                    servicesList.innerHTML = '<p>No services added yet.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading mechanic services:', error);
+                document.getElementById('services-list').innerHTML = '<p>Failed to load services.</p>';
+            }
+        }
+
+        async function loadMechanicSpecialties(mechanicId) {
+            try {
+                const response = await API.mechanics.getSpecialties(mechanicId);
+                const specialtiesList = document.getElementById('specialties-list');
+                
+                if (response.success && response.data.length > 0) {
+                    specialtiesList.innerHTML = '';
+                    
+                    const specialtiesContainer = document.createElement('div');
+                    specialtiesContainer.className = 'specialty-tags';
+                    
+                    response.data.forEach(specialty => {
+                        const specialtyTag = document.createElement('span');
+                        specialtyTag.className = 'specialty-tag';
+                        specialtyTag.textContent = specialty;
+                        specialtiesContainer.appendChild(specialtyTag);
+                    });
+                    
+                    specialtiesList.appendChild(specialtiesContainer);
+                    
+                    // Load specialty options for the edit modal
+                    loadSpecialtyOptions(response.data);
+                    
+                } else {
+                    specialtiesList.innerHTML = '<p>No specialties added yet.</p>';
+                    loadSpecialtyOptions([]);
+                }
+            } catch (error) {
+                console.error('Error loading mechanic specialties:', error);
+                document.getElementById('specialties-list').innerHTML = '<p>Failed to load specialties.</p>';
+            }
+        }
+
+        async function loadSpecialtyOptions(selectedSpecialties) {
+            try {
+                const response = await API.mechanics.getAllSpecialties();
+                const specialtiesOptions = document.getElementById('specialties-options');
+                
+                if (response.success) {
+                    specialtiesOptions.innerHTML = '';
+                    
+                    response.data.forEach(specialty => {
+                        const optionContainer = document.createElement('div');
+                        optionContainer.className = 'specialty-option';
+                        
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.id = `specialty-${specialty.id}`;
+                        checkbox.name = 'specialties';
+                        checkbox.value = specialty.name;
+                        checkbox.checked = selectedSpecialties.includes(specialty.name);
+                        
+                        const label = document.createElement('label');
+                        label.htmlFor = `specialty-${specialty.id}`;
+                        label.textContent = specialty.name;
+                        
+                        optionContainer.appendChild(checkbox);
+                        optionContainer.appendChild(label);
+                        specialtiesOptions.appendChild(optionContainer);
+                    });
+                } else {
+                    specialtiesOptions.innerHTML = '<p>Failed to load specialties options.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading specialty options:', error);
+                document.getElementById('specialties-options').innerHTML = '<p>Failed to load specialties options.</p>';
+            }
+        }
+
+        async function loadMechanicReviews(mechanicId) {
+            try {
+                const response = await API.mechanics.getReviews(mechanicId);
+                const reviewsList = document.getElementById('reviews-list');
+                
+                if (response.success && response.data.length > 0) {
+                    reviewsList.innerHTML = '';
+                    
+                    // Show only the 3 most recent reviews
+                    response.data.slice(0, 3).forEach(review => {
+                        const reviewElement = document.createElement('div');
+                        reviewElement.className = 'review-item';
+                        reviewElement.innerHTML = `
+                            <div class="review-header">
+                                <div class="review-author">${review.customer.name}</div>
+                                <div class="review-date">${new Date(review.createdAt).toLocaleDateString()}</div>
+                            </div>
+                            <div class="review-rating">
+                                ${getStarRating(review.rating)}
+                            </div>
+                            <p class="review-text">${review.comment}</p>
+                        `;
+                        reviewsList.appendChild(reviewElement);
+                    });
+                } else {
+                    reviewsList.innerHTML = '<p>No reviews yet.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading mechanic reviews:', error);
+                document.getElementById('reviews-list').innerHTML = '<p>Failed to load reviews.</p>';
+            }
+        }
+
+        function getStarRating(rating) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    stars += '<span class="star filled">★</span>';
+                } else {
+                    stars += '<span class="star">★</span>';
+                }
+            }
+            return stars;
+        }
+
+        function setupModalTriggers() {
+            // Edit Profile Modal
+            document.getElementById('edit-profile').addEventListener('click', function() {
+                document.getElementById('edit-profile-modal').style.display = 'block';
+            });
+            
+            document.querySelectorAll('#edit-profile-modal .close-btn, #cancel-profile-edit').forEach(element => {
+                element.addEventListener('click', function() {
+                    document.getElementById('edit-profile-modal').style.display = 'none';
+                });
+            });
+            
+            // Edit About Modal (using the same edit profile modal)
+            document.getElementById('edit-about').addEventListener('click', function() {
+                document.getElementById('edit-profile-modal').style.display = 'block';
+            });
+            
+            // Add Service Modal
+            document.getElementById('add-service').addEventListener('click', function() {
+                document.getElementById('add-service-modal').style.display = 'block';
+            });
+            
+            document.querySelectorAll('#add-service-modal .close-btn, #cancel-service-add').forEach(element => {
+                element.addEventListener('click', function() {
+                    document.getElementById('add-service-modal').style.display = 'none';
+                });
+            });
+            
+            // Edit Specialties Modal
+            document.getElementById('edit-specialties').addEventListener('click', function() {
+                document.getElementById('specialties-modal').style.display = 'block';
+            });
+            
+            document.querySelectorAll('#specialties-modal .close-btn, #cancel-specialties-edit').forEach(element => {
+                element.addEventListener('click', function() {
+                    document.getElementById('specialties-modal').style.display = 'none';
+                });
+            });
+            
+            // Change Password Modal
+            document.getElementById('change-password').addEventListener('click', function() {
+                document.getElementById('password-modal').style.display = 'block';
+            });
+            
+            document.querySelectorAll('#password-modal .close-btn, #cancel-password-change').forEach(element => {
+                element.addEventListener('click', function() {
+                    document.getElementById('password-modal').style.display = 'none';
+                });
+            });
+        }
+
+        function setupFormSubmissions(mechanicId) {
+            // Profile Form
+            document.getElementById('profile-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const profileData = {
+                    name: document.getElementById('edit-name').value,
+                    phone: document.getElementById('edit-phone').value,
+                    location: document.getElementById('edit-location').value,
+                    bio: document.getElementById('edit-bio').value
+                };
+                
+                try {
+                    const response = await API.mechanics.updateProfile(mechanicId, profileData);
+                    
+                    if (response.success) {
+                        alert('Profile updated successfully!');
+                        document.getElementById('edit-profile-modal').style.display = 'none';
+                        
+                        // Reload profile data
+                        loadMechanicProfile(mechanicId);
+                    } else {
+                        alert('Failed to update profile: ' + (response.error || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Error updating profile:', error);
+                    alert('Failed to update profile. Please try again.');
+                }
+            });
+            
+            // Service Form
+            document.getElementById('service-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const serviceData = {
+                    name: document.getElementById('service-name').value,
+                    description: document.getElementById('service-description').value,
+                    price: parseFloat(document.getElementById('service-price').value),
+                    duration: parseInt(document.getElementById('service-duration').value)
+                };
+                
+                try {
+                    const response = await API.mechanics.addService(mechanicId, serviceData);
+                    
+                    if (response.success) {
+                        alert('Service added successfully!');
+                        document.getElementById('add-service-modal').style.display = 'none';
+                        
+                        // Reset form
+                        document.getElementById('service-form').reset();
+                        
+                        // Reload services
+                        loadMechanicServices(mechanicId);
+                    } else {
+                        alert('Failed to add service: ' + (response.error || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Error adding service:', error);
+                    alert('Failed to add service. Please try again.');
+                }
+            });
+            
+            // Specialties Form
+            document.getElementById('specialties-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const checkboxes = document.querySelectorAll('input[name="specialties"]:checked');
+                const specialties = Array.from(checkboxes).map(checkbox => checkbox.value);
+                
+                try {
+                    const response = await API.mechanics.updateSpecialties(mechanicId, { specialties });
+                    
+                    if (response.success) {
+                        alert('Specialties updated successfully!');
+                        document.getElementById('specialties-modal').style.display = 'none';
+                        
+                        // Reload specialties
+                        loadMechanicSpecialties(mechanicId);
+                    } else {
+                        alert('Failed to update specialties: ' + (response.error || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Error updating specialties:', error);
+                    alert('Failed to update specialties. Please try again.');
+                }
+            });
+            
+            // Password Form
+            document.getElementById('password-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const currentPassword = document.getElementById('current-password').value;
+                const newPassword = document.getElementById('new-password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                
+                if (newPassword !== confirmPassword) {
+                    alert('New passwords do not match!');
+                    return;
+                }
+                
+                try {
+                    const response = await API.auth.changePassword({
+                        currentPassword,
+                        newPassword
+                    });
+                    
+                    if (response.success) {
+                        alert('Password changed successfully!');
+                        document.getElementById('password-modal').style.display = 'none';
+                        document.getElementById('password-form').reset();
+                    } else {
+                        alert('Failed to change password: ' + (response.error || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Error changing password:', error);
+                    alert('Failed to change password. Please try again.');
+                }
+            });
+        }
+
+        function setupServiceActions(mechanicId) {
+            // Edit Service buttons
+            document.querySelectorAll('.edit-service').forEach(button => {
+                button.addEventListener('click', async function() {
+                    const serviceId = this.getAttribute('data-id');
+                    
+                    try {
+                        const response = await API.mechanics.getService(mechanicId, serviceId);
+                        
+                        if (response.success) {
+                            const service = response.data;
+                            
+                            // Create edit service modal dynamically
+                            const editModal = createEditServiceModal(service);
+                            document.body.appendChild(editModal);
+                            
+                            // Show the modal
+                            editModal.style.display = 'block';
+                            
+                            // Setup close button
+                            editModal.querySelector('.close-btn').addEventListener('click', function() {
+                                editModal.style.display = 'none';
+                                editModal.remove();
+                            });
+                            
+                            // Setup cancel button
+                            editModal.querySelector('#cancel-service-edit').addEventListener('click', function() {
+                                editModal.style.display = 'none';
+                                editModal.remove();
+                            });
+                            
+                            // Setup form submission
+                            editModal.querySelector('form').addEventListener('submit', async function(e) {
+                                e.preventDefault();
+                                
+                                const updatedService = {
+                                    name: this.querySelector('#edit-service-name').value,
+                                    description: this.querySelector('#edit-service-description').value,
+                                    price: parseFloat(this.querySelector('#edit-service-price').value),
+                                    duration: parseInt(this.querySelector('#edit-service-duration').value)
+                                };
+                                
+                                try {
+                                    const updateResponse = await API.mechanics.updateService(mechanicId, serviceId, updatedService);
+                                    
+                                    if (updateResponse.success) {
+                                        alert('Service updated successfully!');
+                                        editModal.style.display = 'none';
+                                        editModal.remove();
+                                        
+                                        // Reload services
+                                        loadMechanicServices(mechanicId);
+                                    } else {
+                                        alert('Failed to update service: ' + (updateResponse.error || 'Unknown error'));
+                                    }
+                                } catch (error) {
+                                    console.error('Error updating service:', error);
+                                    alert('Failed to update service. Please try again.');
+                                }
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Error getting service details:', error);
+                        alert('Failed to load service details. Please try again.');
+                    }
+                });
+            });
+            
+            // Delete Service buttons
+            document.querySelectorAll('.delete-service').forEach(button => {
+                button.addEventListener('click', async function() {
+                    const serviceId = this.getAttribute('data-id');
+                    
+                    if (confirm('Are you sure you want to delete this service?')) {
+                        try {
+                            const response = await API.mechanics.deleteService(mechanicId, serviceId);
+                            
+                            if (response.success) {
+                                alert('Service deleted successfully!');
+                                
+                                // Reload services
+                                loadMechanicServices(mechanicId);
+                            } else {
+                                alert('Failed to delete service: ' + (response.error || 'Unknown error'));
+                            }
+                        } catch (error) {
+                            console.error('Error deleting service:', error);
+                            alert('Failed to delete service. Please try again.');
+                        }
+                    }
+                });
+            });
+        }
+
+        function createEditServiceModal(service) {
+            const modalDiv = document.createElement('div');
+            modalDiv.id = `edit-service-modal-${service._id}`;
+            modalDiv.className = 'modal';
+            
+            modalDiv.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Edit Service</h2>
+                        <span class="close-btn">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <form id="edit-service-form-${service._id}">
+                            <div class="form-group">
+                                <label for="edit-service-name">Service Name</label>
+                                <input type="text" id="edit-service-name" name="name" value="${service.name}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="edit-service-description">Description</label>
+                                <textarea id="edit-service-description" name="description" rows="3" required>${service.description}</textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="edit-service-price">Base Price ($)</label>
+                                <input type="number" id="edit-service-price" name="price" min="0" step="0.01" value="${service.price}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="edit-service-duration">Estimated Duration (minutes)</label>
+                                <input type="number" id="edit-service-duration" name="duration" min="15" step="15" value="${service.duration}" required>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <button type="button" class="btn btn-secondary" id="cancel-service-edit">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            
+            return modalDiv;
+        }
+
+        function setupAvailabilityToggle(mechanicId) {
+            const availabilityToggle = document.getElementById('availability-toggle');
+            
+            availabilityToggle.addEventListener('change', async function() {
+                const isAvailable = this.checked;
+                
+                try {
+                    const response = await API.mechanics.updateAvailability(mechanicId, { isAvailable });
+                    
+                    if (response.success) {
+                        updateStatusDisplay(isAvailable);
+                    } else {
+                        // Revert toggle if update failed
+                        this.checked = !isAvailable;
+                        updateStatusDisplay(!isAvailable);
+                        alert('Failed to update availability: ' + (response.error || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Error updating availability:', error);
+                    // Revert toggle if update failed
+                    this.checked = !isAvailable;
+                    updateStatusDisplay(!isAvailable);
+                    alert('Failed to update availability. Please try again.');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

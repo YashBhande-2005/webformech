@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mechanic Dashboard - Urban Mechanic Partners</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/notifications.css">
+    <script src="js/api-integration.js" defer></script>
+    <script src="js/notification-service.js" defer></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Urban Mechanic Partners</div>
+            <ul class="nav-links">
+                <li><a href="mechanic-dashboard.html" class="active">Dashboard</a></li>
+                <li><a href="#profile" id="profile-link">My Profile</a></li>
+                <li><a href="#requests" id="requests-link">Service Requests</a></li>
+                <li>
+                    <div class="notification-icon-container">
+                        <a href="#" id="notification-bell" class="notification-bell">
+                            <span class="bell-icon">🔔</span>
+                            <span id="notification-count" class="notification-count">0</span>
+                        </a>
+                        <div id="notification-dropdown" class="notification-dropdown">
+                            <div class="notification-header">
+                                <h3>Notifications</h3>
+                                <button id="mark-all-read">Mark all as read</button>
+                            </div>
+                            <div id="notification-list" class="notification-list">
+                                <div class="empty-notification">No new notifications</div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li><a href="#" id="logout">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="dashboard">
+        <div class="dashboard-header">
+            <div class="container">
+                <h1 class="dashboard-title">Mechanic Dashboard</h1>
+                <p>Welcome back, <span id="user-name">Loading...</span></p>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <div class="container">
+                <div class="dashboard-card">
+                    <h3>Availability Status</h3>
+                    <div class="availability-toggle">
+                        <label class="switch">
+                            <input type="checkbox" id="availabilityToggle">
+                            <span class="slider round"></span>
+                        </label>
+                        <span id="availabilityStatus">Currently Unavailable</span>
+                    </div>
+                    <button id="updateAvailability" class="btn btn-primary">Update Availability</button>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Active Service Requests</h3>
+                    <div id="service-requests-list">
+                        <p class="loading-message">Loading service requests...</p>
+                    </div>
+                    <div class="view-all">
+                        <a href="#" id="view-all-requests">View all service requests</a>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Performance Overview</h3>
+                    <div class="stats-container">
+                        <div class="stat-item">
+                            <div class="stat-value" id="average-rating">-.-</div>
+                            <div class="stat-label">Average Rating</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="jobs-completed">0</div>
+                            <div class="stat-label">Jobs Completed</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="response-rate">--%</div>
+                            <div class="stat-label">Response Rate</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="active-requests">0</div>
+                            <div class="stat-label">Active Requests</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Recent Reviews</h3>
+                    <div id="reviews-list">
+                        <p class="loading-message">Loading reviews...</p>
+                    </div>
+                    <div class="view-all">
+                        <a href="#" id="view-all-reviews">View all reviews</a>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Quick Actions</h3>
+                    <div class="quick-actions">
+                        <a href="profile.html" class="quick-action-btn">
+                            <div class="quick-action-icon">👤</div>
+                            <div class="quick-action-text">Update Profile</div>
+                        </a>
+                        <a href="services.html" class="quick-action-btn">
+                            <div class="quick-action-icon">🔧</div>
+                            <div class="quick-action-text">Manage Services</div>
+                        </a>
+                        <a href="schedule.html" class="quick-action-btn">
+                            <div class="quick-action-icon">📅</div>
+                            <div class="quick-action-text">Work Schedule</div>
+                        </a>
+                        <a href="earnings.html" class="quick-action-btn">
+                            <div class="quick-action-icon">💰</div>
+                            <div class="quick-action-text">Earnings</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">Urban Mechanic Partners</div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Dashboard</h4>
+                        <ul>
+                            <li><a href="mechanic-dashboard.html">Overview</a></li>
+                            <li><a href="profile.html">My Profile</a></li>
+                            <li><a href="notifications.html">Notifications</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Support</h4>
+                        <ul>
+                            <li><a href="#">Help Center</a></li>
+                            <li><a href="#">Contact Support</a></li>
+                            <li><a href="#">FAQ</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <ul>
+                            <li><a href="#">Terms of Service</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Urban Mechanic Partners. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize notification service
+            const notificationService = NotificationService.init();
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            try {
+                // Get user data from the new API
+                const userData = await window.urbanMechanicAPI.getCurrentUser();
+                
+                if (!userData.success || userData.data.role !== 'mechanic') {
+                    localStorage.removeItem('token');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                const user = userData.data;
+                document.getElementById('user-name').textContent = user.name;
+                
+                // Get mechanic profile
+                const mechanicResponse = await window.urbanMechanicAPI.request('/mechanics');
+                const mechanic = mechanicResponse.data.find(m => m.user._id === user._id);
+                
+                if (mechanic) {
+                    // Set availability toggle
+                    document.getElementById('availabilityToggle').checked = mechanic.isAvailable || false;
+                    document.getElementById('availabilityStatus').textContent = 
+                        mechanic.isAvailable ? 'Currently Available' : 'Currently Unavailable';
+                    
+                    // Load mechanic data
+                    loadMechanicRequests(mechanic._id);
+                    loadMechanicReviews(mechanic._id);
+                    loadMechanicStats(mechanic._id);
+                    
+                    // Start polling for notifications
+                    window.notificationSystem.startPolling(mechanic._id);
+                    
+                    // Setup availability toggle
+                    document.getElementById('updateAvailability').addEventListener('click', async function() {
+                        const isAvailable = document.getElementById('availabilityToggle').checked;
+                        
+                        try {
+                            const response = await window.urbanMechanicAPI.updateMechanicAvailability(
+                                mechanic._id, 
+                                mechanic.availability, 
+                                isAvailable
+                            );
+                            
+                            if (response.success) {
+                                document.getElementById('availabilityStatus').textContent = 
+                                    isAvailable ? 'Currently Available' : 'Currently Unavailable';
+                                alert('Availability updated successfully!');
+                            } else {
+                                alert('Failed to update availability: ' + (response.error || 'Unknown error'));
+                            }
+                        } catch (error) {
+                            console.error('Error updating availability:', error);
+                            alert('Failed to update availability. Please try again.');
+                        }
+                    });
+                }
+                
+                // Setup logout
+                document.getElementById('logout').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.urbanMechanicAPI.logout();
+                    window.location.href = 'index.html';
+                });
+                
+            } catch (error) {
+                console.error('Authentication error:', error);
+                localStorage.removeItem('token');
+                window.location.href = 'login.html';
+            }
+        });
+
+        async function loadMechanicStats(mechanicId) {
+            try {
+                const response = await window.urbanMechanicAPI.request(`/mechanics/${mechanicId}/stats`);
+                
+                if (response.success) {
+                    const stats = response.data;
+                    document.getElementById('average-rating').textContent = stats.averageRating.toFixed(1);
+                    document.getElementById('jobs-completed').textContent = stats.jobsCompleted;
+                    document.getElementById('response-rate').textContent = stats.responseRate + '%';
+                    document.getElementById('active-requests').textContent = stats.activeRequests;
+                }
+            } catch (error) {
+                console.error('Error loading mechanic stats:', error);
+            }
+        }
+
+        async function loadMechanicRequests(mechanicId) {
+            try {
+                const response = await window.urbanMechanicAPI.getMechanicNotifications(mechanicId);
+                const requestsList = document.getElementById('service-requests-list');
+                
+                if (response.success && response.data.length > 0) {
+                    requestsList.innerHTML = '';
+                    
+                    response.data.slice(0, 5).forEach(request => {
+                        const requestElement = document.createElement('div');
+                        requestElement.className = 'request-item';
+                        requestElement.innerHTML = `
+                            <div class="request-header">
+                                <div class="request-title">${request.serviceType}</div>
+                                <div class="request-status ${request.status.toLowerCase()}">${request.status}</div>
+                            </div>
+                            <div class="request-description">${request.description.substring(0, 100)}${request.description.length > 100 ? '...' : ''}</div>
+                            <div class="request-details">
+                                <div>Vehicle: ${request.vehicleInfo.make} ${request.vehicleInfo.model} (${request.vehicleInfo.year})</div>
+                                <div>Customer: ${request.customer.name}</div>
+                                <div>Location: ${request.location.formattedAddress || 'Near your area'}</div>
+                            </div>
+                            <div class="request-actions">
+                                <button class="btn btn-primary view-details" data-request-id="${request._id}">View Details</button>
+                                ${request.status === 'pending' ? `<button class="btn btn-success accept-request" data-request-id="${request._id}">Accept Request</button>` : ''}
+                            </div>
+                        `;
+                        requestsList.appendChild(requestElement);
+                    });
+                    
+                    // Setup request action buttons
+                    setupRequestActions();
+                    
+                } else {
+                    requestsList.innerHTML = '<p>No service requests available.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading service requests:', error);
+                document.getElementById('service-requests-list').innerHTML = '<p>Failed to load service requests.</p>';
+            }
+        }
+
+        async function loadMechanicReviews(mechanicId) {
+            try {
+                const response = await window.urbanMechanicAPI.request(`/mechanics/${mechanicId}/reviews`);
+                const reviewsList = document.getElementById('reviews-list');
+                
+                if (response.success && response.data.length > 0) {
+                    reviewsList.innerHTML = '';
+                    
+                    response.data.slice(0, 3).forEach(review => {
+                        const reviewElement = document.createElement('div');
+                        reviewElement.className = 'review-item';
+                        reviewElement.innerHTML = `
+                            <div class="review-header">
+                                <div class="review-rating">${'⭐'.repeat(review.rating)}</div>
+                                <div class="review-date">${new Date(review.createdAt).toLocaleDateString()}</div>
+                            </div>
+                            <div class="review-title">${review.title}</div>
+                            <div class="review-text">${review.text}</div>
+                            <div class="review-customer">- ${review.customer.name}</div>
+                        `;
+                        reviewsList.appendChild(reviewElement);
+                    });
+                } else {
+                    reviewsList.innerHTML = '<p>No reviews yet.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+                document.getElementById('reviews-list').innerHTML = '<p>Failed to load reviews.</p>';
+            }
+        }
+
+        function setupRequestActions() {
+            document.querySelectorAll('.view-details').forEach(button => {
+                button.addEventListener('click', function() {
+                    const requestId = this.getAttribute('data-request-id');
+                    window.location.href = `request-details.html?id=${requestId}`;
+                });
+            });
+
+            document.querySelectorAll('.accept-request').forEach(button => {
+                button.addEventListener('click', async function() {
+                    const requestId = this.getAttribute('data-request-id');
+                    try {
+                        const response = await window.urbanMechanicAPI.acceptServiceRequest(requestId);
+                        if (response.success) {
+                            alert('Request accepted successfully!');
+                            // Reload the requests list
+                            const mechanic = await getCurrentMechanic();
+                            if (mechanic) {
+                                loadMechanicRequests(mechanic._id);
+                            }
+                        } else {
+                            alert('Failed to accept request: ' + (response.error || 'Unknown error'));
+                        }
+                    } catch (error) {
+                        console.error('Error accepting request:', error);
+                        alert('Failed to accept request. Please try again.');
+                    }
+                });
+            });
+        }
+
+        async function getCurrentMechanic() {
+            try {
+                const userData = await window.urbanMechanicAPI.getCurrentUser();
+                const mechanicResponse = await window.urbanMechanicAPI.request('/mechanics');
+                return mechanicResponse.data.find(m => m.user._id === userData.data._id);
+            } catch (error) {
+                console.error('Error getting current mechanic:', error);
+                return null;
+            }
+        }
+    </script>
+</body>
+</html>

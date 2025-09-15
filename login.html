@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Urban Mechanic Partners</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="js/api.js" defer></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Urban Mechanic Partners</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#about">About</a></li>
+                <li><a href="index.html#services">Services</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+                <li><a href="register.html" class="btn-login">Register</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="auth-container">
+        <div class="auth-form">
+            <h2>Mechanic Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div id="emailError" class="error-message"></div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div id="passwordError" class="error-message"></div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="remember" name="remember">
+                        Remember me
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Login</button>
+                <div id="loginError" class="error-message"></div>
+            </form>
+            
+            <script>
+                document.getElementById('loginForm').addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    // Clear previous error messages
+                    document.getElementById('emailError').textContent = '';
+                    document.getElementById('passwordError').textContent = '';
+                    document.getElementById('loginError').textContent = '';
+                    
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+                    
+                    try {
+                        console.log('Attempting login with:', { email, password });
+                        const response = await window.API.auth.login({ email, password });
+                        console.log('Login response:', response);
+                        
+                        if (response && (response.success || response.token)) {
+                            // Store token in localStorage
+                            if (response.token) localStorage.setItem('token', response.token);
+                            console.log('Token stored, redirecting...');
+                            
+                            // Check user role and redirect accordingly
+                            if (response.data && response.data.role === 'mechanic') {
+                                window.location.href = 'mechanic-dashboard.html';
+                            } else if (response.user && response.user.role === 'mechanic') {
+                                window.location.href = 'mechanic-dashboard.html';
+                            } else {
+                                window.location.href = 'dashboard.html';
+                            }
+                        } else {
+                            const errorMsg = response.message || response.error || 'Login failed. Please check your credentials.';
+                            console.error('Login failed:', errorMsg);
+                            document.getElementById('loginError').textContent = errorMsg;
+                        }
+                    } catch (error) {
+                        console.error('Login error:', error);
+                        console.error('Error details:', error.message);
+                        document.getElementById('loginError').textContent = `Login failed: ${error.message}. Please check if the server is running.`;
+                    }
+                });
+            </script>
+            
+            <div class="auth-links">
+                <p><a href="#" id="forgotPasswordLink">Forgot password?</a></p>
+                
+                <script>
+                    document.getElementById('forgotPasswordLink').addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const email = document.getElementById('email').value;
+                        
+                        if (!email) {
+                            document.getElementById('emailError').textContent = 'Please enter your email address first';
+                            return;
+                        }
+                        
+                        // Show confirmation dialog
+                        if (confirm('Send password reset instructions to ' + email + '?')) {
+                            window.API.auth.forgotPassword(email)
+                                .then(response => {
+                                    if (response.success) {
+                                        alert('Password reset instructions have been sent to your email.');
+                                    } else {
+                                        document.getElementById('emailError').textContent = response.error || 'Failed to send reset instructions';
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Forgot password error:', error);
+                                    document.getElementById('emailError').textContent = 'An error occurred. Please try again.';
+                                });
+                        }
+                    });
+                </script>
+                <p>Don't have an account? <a href="register.html">Register here</a></p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">Urban Mechanic Partners</div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Company</h4>
+                        <ul>
+                            <li><a href="index.html#about">About Us</a></li>
+                            <li><a href="index.html#services">Services</a></li>
+                            <li><a href="index.html#contact">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>For Mechanics</h4>
+                        <ul>
+                            <li><a href="register.html">Register</a></li>
+                            <li><a href="login.html">Login</a></li>
+                            <li><a href="#">FAQ</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <ul>
+                            <li><a href="#">Terms of Service</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Urban Mechanic Partners. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/api-integration.js"></script>
+    <script>
+        // Fallback: if API not defined, bridge to urbanMechanicAPI for login
+        if (!window.API || !window.API.auth || typeof window.API.auth.login !== 'function') {
+            window.API = window.API || {};
+            window.API.auth = window.API.auth || {};
+            window.API.auth.login = (credentials) => window.urbanMechanicAPI.login(credentials);
+        }
+    </script>
+    <script src="scripts.js"></script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Registration & Login Flow</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        button { padding: 10px 20px; margin: 5px; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+    </style>
+</head>
+<body>
+    <h1>Test Registration & Login Flow</h1>
+    
+    <div class="section">
+        <h2>Step 1: Register a Mechanic</h2>
+        <input type="text" id="regName" placeholder="Full Name" value="Test Mechanic">
+        <input type="email" id="regEmail" placeholder="Email" value="test@mechanic.com">
+        <input type="password" id="regPassword" placeholder="Password" value="password123">
+        <button onclick="registerMechanic()">Register Mechanic</button>
+        <div id="regResult"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Step 2: Login with Registered Email</h2>
+        <input type="email" id="loginEmail" placeholder="Email" value="test@mechanic.com">
+        <input type="password" id="loginPassword" placeholder="Password" value="password123">
+        <button onclick="loginMechanic()">Login</button>
+        <div id="loginResult"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Step 3: Check Current User</h2>
+        <button onclick="getCurrentUser()">Get Current User</button>
+        <div id="userResult"></div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        async function registerMechanic() {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            
+            try {
+                const response = await window.API.auth.register({
+                    name,
+                    email,
+                    password,
+                    role: 'mechanic'
+                });
+                
+                if (response.success || response.token) {
+                    localStorage.setItem('token', response.token);
+                    document.getElementById('regResult').innerHTML = 
+                        '<div class="success">✅ Registration successful! Token stored.</div>';
+                } else {
+                    document.getElementById('regResult').innerHTML = 
+                        '<div class="error">❌ Registration failed: ' + (response.message || response.error) + '</div>';
+                }
+            } catch (error) {
+                document.getElementById('regResult').innerHTML = 
+                    '<div class="error">❌ Error: ' + error.message + '</div>';
+            }
+        }
+        
+        async function loginMechanic() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const response = await window.API.auth.login({
+                    email,
+                    password
+                });
+                
+                if (response.success || response.token) {
+                    localStorage.setItem('token', response.token);
+                    document.getElementById('loginResult').innerHTML = 
+                        '<div class="success">✅ Login successful! Token stored.</div>';
+                } else {
+                    document.getElementById('loginResult').innerHTML = 
+                        '<div class="error">❌ Login failed: ' + (response.message || response.error) + '</div>';
+                }
+            } catch (error) {
+                document.getElementById('loginResult').innerHTML = 
+                    '<div class="error">❌ Error: ' + error.message + '</div>';
+            }
+        }
+        
+        async function getCurrentUser() {
+            try {
+                const response = await window.API.auth.getMe();
+                
+                if (response.success) {
+                    document.getElementById('userResult').innerHTML = 
+                        '<div class="success">✅ Current user: ' + JSON.stringify(response.data, null, 2) + '</div>';
+                } else {
+                    document.getElementById('userResult').innerHTML = 
+                        '<div class="error">❌ Failed to get user: ' + (response.message || response.error) + '</div>';
+                }
+            } catch (error) {
+                document.getElementById('userResult').innerHTML = 
+                    '<div class="error">❌ Error: ' + error.message + '</div>';
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+
+

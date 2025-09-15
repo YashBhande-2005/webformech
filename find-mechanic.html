@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Nearby Mechanic in Mumbai - Urban Mechanic</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="js/location-service.js"></script>
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(255, 143, 0, 0.1);
+            transition: all 0.3s ease;
+            border-bottom: 2px solid #FFC107;
+        }
+
+        .navbar .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1rem;
+        }
+
+        .logo a {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #5E5E5E;
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: #FFC107;
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            list-style: none;
+        }
+
+        .nav-menu li {
+            margin-left: 2rem;
+        }
+
+        .nav-link {
+            color: #333;
+            font-weight: 500;
+            position: relative;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #FFC300 0%, #FF8F00 100%);
+            transition: width 0.2s ease;
+            border-radius: 2px;
+        }
+
+        .nav-link:hover:after {
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FFC300, #FF8F00);
+            color: #333 !important;
+            padding: 8px 20px;
+            border-radius: 5px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 143, 0, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #FF8F00, #FF6F00);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 143, 0, 0.4);
+        }
+
+        .nav-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .nav-toggle span {
+            width: 25px;
+            height: 3px;
+            background-color: #5E5E5E;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        /* Hero Section */
+        .find-mechanic-hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1600861195091-690c92f1d2cc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+            padding: 150px 0 100px;
+            margin-top: 60px;
+        }
+
+        .section-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .section-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* Map Section */
+        .map-section {
+            padding: 60px 0;
+        }
+
+        .map-container {
+            position: relative;
+            height: 500px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        /* Location Controls */
+        .location-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .location-btn {
+            background: linear-gradient(135deg, #FFC300, #FF8F00);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(255, 143, 0, 0.3);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .location-btn:hover {
+            background: linear-gradient(135deg, #FF8F00, #FF6F00);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 143, 0, 0.4);
+        }
+
+        .location-btn:active {
+            transform: translateY(0);
+        }
+
+        .location-btn.secondary {
+            background: linear-gradient(135deg, #FFB300, #FF8F00);
+            box-shadow: 0 2px 8px rgba(255, 179, 0, 0.3);
+        }
+
+        .location-btn.secondary:hover {
+            background: linear-gradient(135deg, #FF8F00, #FF6F00);
+            box-shadow: 0 4px 12px rgba(255, 179, 0, 0.4);
+        }
+
+        .location-btn.secondary.active {
+            background: linear-gradient(135deg, #FF6F00, #E65100);
+            box-shadow: 0 2px 8px rgba(255, 111, 0, 0.3);
+        }
+
+        .location-btn.secondary.active:hover {
+            background: linear-gradient(135deg, #E65100, #BF360C);
+            box-shadow: 0 4px 12px rgba(255, 111, 0, 0.4);
+        }
+
+        .location-status {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #666;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-width: 200px;
+            text-align: center;
+        }
+
+        .location-status.success {
+            background: rgba(255, 193, 7, 0.1);
+            color: #E65100;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .location-status.error {
+            background: rgba(244, 67, 54, 0.1);
+            color: #c62828;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .map-loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #FFC107;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 0 0 0 rgba(76, 175, 80, 0.7); }
+            70% { box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 0 0 10px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+
+        /* Service Filter */
+        .service-filter {
+            margin-bottom: 30px;
+        }
+
+        .service-filter h3 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 8px 15px;
+            background-color: #FFF8E1;
+            border: 2px solid #FFE0B2;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #E65100;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            background-color: #FFE0B2;
+            border-color: #FFCC02;
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #FFC300, #FF8F00);
+            color: white;
+            border-color: #FF8F00;
+            box-shadow: 0 4px 15px rgba(255, 143, 0, 0.3);
+        }
+
+        /* Mechanics List */
+        .mechanics-list-container h2 {
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .mechanics-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .mechanic-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .mechanic-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .mechanic-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .mechanic-info {
+            padding: 20px;
+        }
+
+        .mechanic-name {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .mechanic-distance {
+            color: #FF8F00;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .mechanic-rating {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .stars {
+            color: #FFD700;
+            margin-right: 10px;
+        }
+
+        .mechanic-services {
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .service-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
+            color: #E65100;
+            padding: 4px 10px;
+            border-radius: 15px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid #FFCC02;
+        }
+
+        .mechanic-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-secondary {
+            background-color: #f1f1f1;
+            color: #333;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+
+        .btn-book {
+            background: linear-gradient(135deg, #FFC300, #FF8F00);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 143, 0, 0.3);
+        }
+
+        .btn-book:hover {
+            background: linear-gradient(135deg, #FF8F00, #FF6F00);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 143, 0, 0.4);
+        }
+
+        .mechanics-placeholder {
+            text-align: center;
+            padding: 40px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            grid-column: 1 / -1;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #333;
+            color: white;
+            padding: 60px 0 20px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-logo a {
+            color: white;
+            text-decoration: none;
+            font-size: 24px;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .footer-logo span {
+            color: #FFC300;
+        }
+
+        .footer-logo p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .link-group h4 {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .link-group ul {
+            list-style: none;
+        }
+
+        .link-group li {
+            margin-bottom: 10px;
+        }
+
+        .link-group a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .link-group a:hover {
+            color: #FFC300;
+        }
+
+        .footer-social h4 {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-icons a {
+            color: white;
+            background-color: #444;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+
+        .social-icons a:hover {
+            background: linear-gradient(135deg, #FFC300, #FF8F00);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #444;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Floating Buttons */
+        .sos-button, .chat-button {
+            position: fixed;
+            right: 30px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+            z-index: 999;
+        }
+
+        .sos-button {
+            background-color: #f44336;
+            bottom: 120px;
+        }
+
+        .sos-button:hover {
+            background-color: #d32f2f;
+            transform: translateY(-3px);
+        }
+
+        .chat-button {
+            background: linear-gradient(135deg, #FFC300, #FF8F00);
+            bottom: 60px;
+        }
+
+        .chat-button:hover {
+            background: linear-gradient(135deg, #FF8F00, #FF6F00);
+            transform: translateY(-3px);
+        }
+
+        .sos-icon, .chat-icon {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .nav-toggle {
+                display: flex;
+            }
+
+            .nav-menu {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 100%;
+                background-color: white;
+                flex-direction: column;
+                align-items: center;
+                padding: 20px 0;
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+                transition: left 0.3s;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .nav-menu li {
+                margin: 15px 0;
+            }
+
+            .find-mechanic-hero {
+                padding: 120px 0 80px;
+            }
+
+            .section-header h1 {
+                font-size: 2rem;
+            }
+
+            .filter-options {
+                justify-content: center;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .social-icons {
+                justify-content: center;
+            }
+
+            .sos-button, .chat-button {
+                right: 15px;
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+
+            .sos-button span, .chat-button span {
+                display: none;
+            }
+
+            .sos-button {
+                bottom: 80px;
+            }
+
+            .chat-button {
+                bottom: 30px;
+            }
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">Urban<span>Mechanic</span></a>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="services.html" class="nav-link">Services</a></li>
+                <li><a href="how-it-works.html" class="nav-link">How It Works</a></li>
+                <li><a href="find-mechanic.html" class="nav-link">Find Mechanic</a></li>
+                <li><a href="about.html" class="nav-link">About</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+                <li><a href="services.html" class="nav-link btn-primary">Book Now</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Find Mechanic Hero Section -->
+    <section class="find-mechanic-hero">
+        <div class="container">
+            <div class="section-header">
+                <h1>Find Nearby Mechanics in Mumbai</h1>
+                <p>Get instant help from certified mechanics across Mumbai and surrounding areas</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map and Mechanics Section -->
+    <section class="map-section">
+        <div class="container">
+            <div class="map-container">
+                <!-- Location Controls -->
+                <div class="location-controls">
+                    <button id="refresh-location" class="location-btn" title="Refresh your location">
+                        <i class="fas fa-location-arrow"></i> Refresh Location
+                    </button>
+                    <button id="watch-location" class="location-btn secondary" title="Track location continuously">
+                        <i class="fas fa-eye"></i> <span class="watch-text">Watch Location</span>
+                    </button>
+                    <div class="location-status" id="location-status">
+                        <i class="fas fa-spinner fa-spin"></i> Getting your location...
+                    </div>
+                </div>
+                
+                <!-- Map will be rendered here -->
+                <div id="map"></div>
+                
+                <!-- Loading indicator -->
+                <div class="map-loading" id="map-loading">
+                    <div class="spinner"></div>
+                    <p>Finding nearby mechanics in Mumbai...</p>
+                </div>
+            </div>
+
+            <!-- Service Filter -->
+            <div class="service-filter">
+                <h3>Filter by Service</h3>
+                <div class="filter-options">
+                    <button class="filter-btn active" data-service="all">All Services</button>
+                    <button class="filter-btn" data-service="Battery Jump">Battery Jump</button>
+                    <button class="filter-btn" data-service="Flat Tyre">Flat Tyre</button>
+                    <button class="filter-btn" data-service="Engine Trouble">Engine Trouble</button>
+                    <button class="filter-btn" data-service="Emergency Tow">Emergency Tow</button>
+                </div>
+            </div>
+
+            <!-- Mechanics List -->
+            <div class="mechanics-list-container">
+                <h2>Available Mechanics</h2>
+                <div id="mechanics-list" class="mechanics-list">
+                    <!-- Mechanics will be listed here dynamically -->
+                    <div class="mechanics-placeholder">
+                        <p>Please allow location access to find mechanics near you in Mumbai</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+ <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <a href="index.html">Urban<span>Mechanic</span></a>
+                    <p>Instant vehicle help, wherever you are</p>
+                </div>
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>Company</h4>
+                        <ul>
+                            <li><a href="about.html">About Us</a></li>
+                        </ul>
+                    </div>
+                    <div class="link-group">
+                        <h4>Services</h4>
+                        <ul>
+                            <li><a href="services.html">All Services</a></li>
+                            <li><a href="find-mechanic.html">Find Mechanic</a></li>
+                        </ul>
+                    </div>
+                    <div class="link-group">
+                        <h4>Support</h4>
+                        <ul>
+                            <li><a href="contact.html">Contact Us</a></li>
+                            <li><a href="how-it-works.html">How It Works</a></li>
+                            <li><a href="download.html">Download App</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-social">
+                    <h4>Connect With Us</h4>
+                    <div class="social-icons">
+                        <a href="https://www.instagram.com/urbanmechanic2025?igsh=eTZpamFkNmprdDd1"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Urban Mechanic. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/api-integration.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const navToggle = document.getElementById('navToggle');
+            const navMenu = document.getElementById('navMenu');
+            
+            navToggle.addEventListener('click', function() {
+                navMenu.classList.toggle('active');
+                navToggle.classList.toggle('active');
+            });
+
+            // Close menu when clicking on a link
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    navMenu.classList.remove('active');
+                    navToggle.classList.remove('active');
+                });
+            });
+
+            // Initialize enhanced location service
+            const locationService = new LocationService();
+            
+            // Setup location event listeners
+            locationService.on('success', (location) => {
+                console.log('Location service success:', location);
+                updateLocationStatus(`<i class="fas fa-check-circle"></i> Location found (${locationService.formatLocation(location).accuracy})`, 'success');
+            });
+            
+            locationService.on('error', (error) => {
+                console.error('Location service error:', error);
+                let errorMsg = 'Location failed';
+                if (error.code === 1) errorMsg = 'Location access denied';
+                else if (error.code === 2) errorMsg = 'Location unavailable';
+                else if (error.code === 3) errorMsg = 'Location timeout';
+                updateLocationStatus(`<i class="fas fa-exclamation-triangle"></i> ${errorMsg}`, 'error');
+            });
+            
+            locationService.on('update', (location) => {
+                console.log('Location updated:', location);
+                updateLocationStatus(`<i class="fas fa-satellite-dish"></i> Live tracking (${locationService.formatLocation(location).accuracy})`, 'success');
+                
+                // Update map with live location
+                if (userMarker) {
+                    map.removeLayer(userMarker);
+                }
+                
+                const userIcon = L.divIcon({
+                    className: 'user-marker',
+                    html: '<div style="background: #FFC107; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); animation: pulse 2s infinite;"></div>',
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
+                
+                userMarker = L.marker([location.lat, location.lng], { icon: userIcon }).addTo(map);
+                const formatInfo = locationService.formatLocation(location);
+                userMarker.bindPopup(`Your Location (Live)<br><small>Accuracy: ${formatInfo.accuracy}</small>`);
+                
+                // Update mechanics list with new distances
+                displayMechanics(location.lat, location.lng);
+            });
+
+            // Real mechanics data will be loaded from API
+            let mechanics = [];
+
+            // Initialize map
+            let map;
+            let userMarker;
+            let mechanicMarkers = [];
+            const loadingElement = document.getElementById('map-loading');
+            const mechanicsList = document.getElementById('mechanics-list');
+
+            // Initialize location and map using the enhanced location service
+            async function initializeLocationAndMap() {
+                try {
+                    updateLocationStatus('<i class="fas fa-spinner fa-spin"></i> Getting your location...', 'info');
+                    
+                    const location = await locationService.getCurrentLocation();
+                    
+                    // Initialize map with the location
+                    initMap(location.lat, location.lng, location.accuracy);
+                    
+                    // Display nearby mechanics
+                    displayMechanics(location.lat, location.lng);
+                    
+                } catch (error) {
+                    console.error('Failed to get location:', error);
+                    handleLocationError(error);
+                }
+            }
+
+            // Call the initialization
+            initializeLocationAndMap();
+
+            function handleLocationError(error) {
+                let errorMessage = "Location access failed. ";
+                
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage += "Please allow location access and refresh the page for accurate results.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage += "Location information is unavailable.";
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage += "Location request timed out.";
+                        break;
+                    default:
+                        errorMessage += "Using default Mumbai location.";
+                        break;
+                }
+                
+                // Update status
+                updateLocationStatus(`<i class="fas fa-exclamation-triangle"></i> Using Mumbai default`, 'error');
+                
+                // Show error message to user
+                showLocationError(errorMessage);
+                
+                // Use default location (Mumbai)
+                initMap(19.0760, 72.8777, null);
+                displayMechanics(19.0760, 72.8777);
+            }
+
+            function showLocationError(message) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'location-error';
+                errorDiv.innerHTML = `
+                    <div style="background: #ff6b6b; color: white; padding: 15px; margin: 20px; border-radius: 8px; position: relative; z-index: 1000;">
+                        <i class="fas fa-exclamation-triangle"></i> ${message}
+                        <button onclick="this.parentElement.parentElement.remove()" style="float: right; background: none; border: none; color: white; font-size: 18px; cursor: pointer;">&times;</button>
+                    </div>
+                `;
+                document.querySelector('.map-container').prepend(errorDiv);
+            }
+
+            function initMap(lat, lng, accuracy) {
+                // Hide loading indicator
+                loadingElement.style.display = 'none';
+                
+                // Initialize map with higher zoom for better accuracy
+                map = L.map('map').setView([lat, lng], accuracy && accuracy < 100 ? 16 : 14);
+                
+                // Add tile layer (OpenStreetMap) with better quality
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    maxZoom: 19,
+                    subdomains: ['a', 'b', 'c']
+                }).addTo(map);
+                
+                // Add user marker with accuracy circle
+                const userIcon = L.divIcon({
+                    className: 'user-marker',
+                    html: '<div style="background: #FFC107; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>',
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
+                
+                userMarker = L.marker([lat, lng], { icon: userIcon }).addTo(map);
+                
+                // Add accuracy circle if available
+                if (accuracy && accuracy > 0) {
+                    const accuracyCircle = L.circle([lat, lng], {
+                        radius: accuracy,
+                        color: '#FFC107',
+                        fillColor: '#FFC107',
+                        fillOpacity: 0.1,
+                        weight: 2
+                    }).addTo(map);
+                    
+                    userMarker.bindPopup(`Your Location<br><small>Accuracy: ±${Math.round(accuracy)}m</small>`).openPopup();
+                } else {
+                    userMarker.bindPopup("Your Location<br><small>(Default: Mumbai)</small>").openPopup();
+                }
+            }
+
+            async function displayMechanics(userLat, userLng, serviceType = null) {
+                // Clear existing mechanics
+                mechanicsList.innerHTML = '';
+                mechanicsList.innerHTML = '<div class="mechanics-placeholder"><p><i class="fas fa-spinner fa-spin"></i> Finding nearby mechanics...</p></div>';
+                
+                try {
+                    // Fetch nearby mechanics from API
+                    const response = await window.mechanicFinder.findNearbyMechanics(userLat, userLng, serviceType);
+                    mechanics = response;
+                    
+                    if (mechanics.length === 0) {
+                        mechanicsList.innerHTML = '<div class="mechanics-placeholder"><p>No mechanics found in your area. Try expanding your search radius or check back later.</p></div>';
+                        return;
+                    }
+                    
+                    // Clear the loading message
+                    mechanicsList.innerHTML = '';
+                    
+                    // Calculate distances and sort mechanics
+                    mechanics.forEach(mechanic => {
+                        const [lng, lat] = mechanic.location.coordinates;
+                        const distance = window.mechanicFinder.calculateDistance(userLat, userLng, lat, lng);
+                        mechanic.distance = `${distance.toFixed(1)} km away`;
+                        mechanic.eta = window.mechanicFinder.calculateETA(distance);
+                        mechanic.lat = lat;
+                        mechanic.lng = lng;
+                    });
+                    
+                    // Sort mechanics by distance
+                    mechanics.sort((a, b) => {
+                        const distA = parseFloat(a.distance);
+                        const distB = parseFloat(b.distance);
+                        return distA - distB;
+                    });
+                    
+                    // Add markers and cards for each mechanic
+                    mechanics.forEach(mechanic => {
+                        // Add marker to map
+                        const marker = L.marker([mechanic.lat, mechanic.lng], {
+                            icon: L.divIcon({
+                                className: 'mechanic-marker',
+                                html: '<i class="fas fa-wrench" style="color: #2196F3; font-size: 24px;"></i>',
+                                iconSize: [24, 24],
+                                iconAnchor: [12, 12]
+                            })
+                        }).addTo(map);
+                        
+                        marker.bindPopup(`
+                            <div style="text-align: center;">
+                                <h4>${mechanic.name}</h4>
+                                <p>Rating: ${mechanic.rating}/5 (${mechanic.reviewCount} reviews)</p>
+                                <p>ETA: ${mechanic.eta} minutes</p>
+                                <button onclick="requestHelpFromMechanic('${mechanic._id}', '${mechanic.name}')" 
+                                        style="background: #FFC107; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+                                    Request Help
+                                </button>
+                            </div>
+                        `);
+                        mechanicMarkers.push(marker);
+                        
+                        // Create mechanic card
+                        const card = document.createElement('div');
+                        card.className = 'mechanic-card';
+                        card.dataset.id = mechanic._id;
+                        
+                        // Generate stars HTML
+                        const fullStars = Math.floor(mechanic.rating);
+                        const hasHalfStar = mechanic.rating % 1 >= 0.5;
+                        let starsHtml = '';
+                        
+                        for (let i = 0; i < 5; i++) {
+                            if (i < fullStars) {
+                                starsHtml += '<i class="fas fa-star"></i>';
+                            } else if (i === fullStars && hasHalfStar) {
+                                starsHtml += '<i class="fas fa-star-half-alt"></i>';
+                            } else {
+                                starsHtml += '<i class="far fa-star"></i>';
+                            }
+                        }
+                        
+                        // Generate services HTML
+                        const servicesHtml = mechanic.services.map(service => 
+                            `<span class="service-tag">${service}</span>`
+                        ).join('');
+                        
+                        // Set card HTML
+                        card.innerHTML = `
+                            <div class="mechanic-image" style="background-image: url('https://images.unsplash.com/photo-1583121274602-3e2820c69888?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')"></div>
+                            <div class="mechanic-info">
+                                <h3 class="mechanic-name">${mechanic.name}</h3>
+                                <p class="mechanic-distance">${mechanic.distance} • ETA: ${mechanic.eta} min</p>
+                                <div class="mechanic-rating">
+                                    <div class="stars">${starsHtml}</div>
+                                    <span>${mechanic.rating} (${mechanic.reviewCount} reviews)</span>
+                                </div>
+                                <div class="mechanic-services">Services: ${servicesHtml}</div>
+                                <div class="mechanic-actions">
+                                    <button class="btn-secondary" onclick="viewMechanicProfile('${mechanic._id}')">View Profile</button>
+                                    <button class="btn-secondary btn-book" onclick="requestHelpFromMechanic('${mechanic._id}', '${mechanic.name}')">Request Help</button>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Add click event to center map on mechanic
+                        card.addEventListener('click', function() {
+                            map.setView([mechanic.lat, mechanic.lng], 16);
+                            marker.openPopup();
+                        });
+                        
+                        // Add card to list
+                        mechanicsList.appendChild(card);
+                    });
+                    
+                } catch (error) {
+                    console.error('Failed to load mechanics:', error);
+                    mechanicsList.innerHTML = '<div class="mechanics-placeholder"><p>Failed to load mechanics. Please try again later.</p></div>';
+                }
+            }
+
+            // Service filter functionality
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Get selected service
+                    const service = this.getAttribute('data-service');
+                    
+                    // Filter mechanics by service
+                    filterMechanicsByService(service);
+                });
+            });
+
+            async function filterMechanicsByService(service) {
+                if (service === 'all') {
+                    // Show all mechanics
+                    const mechanicCards = document.querySelectorAll('.mechanic-card');
+                    mechanicCards.forEach(card => {
+                        card.style.display = 'block';
+                    });
+                } else {
+                    // Filter by service type - reload mechanics with service filter
+                    try {
+                        const location = await locationService.getCurrentLocation();
+                        await displayMechanics(location.lat, location.lng, service);
+                    } catch (error) {
+                        console.error('Failed to filter mechanics:', error);
+                        // Fallback to client-side filtering
+                        const mechanicCards = document.querySelectorAll('.mechanic-card');
+                        mechanicCards.forEach(card => {
+                            const cardId = card.dataset.id;
+                            const mechanic = mechanics.find(m => m._id === cardId);
+                            
+                            if (mechanic && mechanic.services.includes(service)) {
+                                card.style.display = 'block';
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
+                    }
+                }
+            }
+
+            // Location refresh functionality
+            function updateLocationStatus(message, type = 'info') {
+                const statusElement = document.getElementById('location-status');
+                statusElement.innerHTML = message;
+                statusElement.className = 'location-status ' + type;
+            }
+
+            async function refreshLocation() {
+                const refreshBtn = document.getElementById('refresh-location');
+                refreshBtn.disabled = true;
+                refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting Location...';
+                
+                updateLocationStatus('<i class="fas fa-spinner fa-spin"></i> Updating your location...', 'info');
+
+                try {
+                    // Force fresh location by setting maximumAge to 0
+                    const location = await locationService.getCurrentLocation({ maximumAge: 0 });
+                    
+                    console.log(`Location refreshed:`, location);
+                    
+                    // Update map
+                    map.setView([location.lat, location.lng], location.accuracy && location.accuracy < 100 ? 16 : 14);
+                    
+                    // Update user marker
+                    if (userMarker) {
+                        map.removeLayer(userMarker);
+                    }
+                    
+                    const userIcon = L.divIcon({
+                        className: 'user-marker',
+                        html: '<div style="background: #FFC107; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>',
+                        iconSize: [20, 20],
+                        iconAnchor: [10, 10]
+                    });
+                    
+                    userMarker = L.marker([location.lat, location.lng], { icon: userIcon }).addTo(map);
+                    
+                    if (location.accuracy && location.accuracy > 0) {
+                        const accuracyCircle = L.circle([location.lat, location.lng], {
+                            radius: location.accuracy,
+                            color: '#FFC107',
+                            fillColor: '#FFC107',
+                            fillOpacity: 0.1,
+                            weight: 2
+                        }).addTo(map);
+                        
+                        const formatInfo = locationService.formatLocation(location);
+                        userMarker.bindPopup(`Your Location<br><small>Accuracy: ${formatInfo.accuracy}</small>`);
+                    } else {
+                        userMarker.bindPopup("Your Location");
+                    }
+                    
+                    // Update mechanics list
+                    displayMechanics(location.lat, location.lng);
+                    
+                } catch (error) {
+                    console.error("Location refresh failed:", error);
+                    // Error handling is done by the location service event listeners
+                } finally {
+                    // Reset button
+                    refreshBtn.disabled = false;
+                    refreshBtn.innerHTML = '<i class="fas fa-location-arrow"></i> Refresh Location';
+                }
+            }
+
+            // Add event listener for refresh button
+            document.getElementById('refresh-location').addEventListener('click', refreshLocation);
+
+            // Watch location functionality using the location service
+            function toggleWatchLocation() {
+                const watchBtn = document.getElementById('watch-location');
+                const watchText = watchBtn.querySelector('.watch-text');
+                
+                if (!locationService.isWatching) {
+                    // Start watching
+                    locationService.startWatching();
+                    
+                    watchBtn.classList.add('active');
+                    watchText.textContent = 'Stop Watching';
+                    watchBtn.querySelector('i').className = 'fas fa-eye-slash';
+                    
+                    updateLocationStatus('<i class="fas fa-satellite-dish"></i> Live tracking started', 'success');
+                    
+                } else {
+                    // Stop watching
+                    locationService.stopWatching();
+                    
+                    watchBtn.classList.remove('active');
+                    watchText.textContent = 'Watch Location';
+                    watchBtn.querySelector('i').className = 'fas fa-eye';
+                    
+                    updateLocationStatus('<i class="fas fa-map-marker-alt"></i> Live tracking stopped', 'info');
+                }
+            }
+
+            // Add event listener for watch button
+            document.getElementById('watch-location').addEventListener('click', toggleWatchLocation);
+
+            // Initialize location status
+            updateLocationStatus('<i class="fas fa-spinner fa-spin"></i> Getting your location...', 'info');
+        });
+
+        // Global functions for mechanic interactions
+        async function requestHelpFromMechanic(mechanicId, mechanicName) {
+            // Get current location
+            try {
+                const location = await locationService.getCurrentLocation();
+                
+                // Show service request modal
+                showServiceRequestModal(mechanicId, mechanicName, location);
+            } catch (error) {
+                console.error('Failed to get location:', error);
+                alert('Please allow location access to request help.');
+            }
+        }
+
+        function viewMechanicProfile(mechanicId) {
+            // For now, redirect to a profile page or show modal
+            // In a real app, this would show detailed mechanic information
+            window.open(`mechanic-profile.html?id=${mechanicId}`, '_blank');
+        }
+
+        function showServiceRequestModal(mechanicId, mechanicName, location) {
+            // Create modal
+            const modal = document.createElement('div');
+            modal.className = 'service-request-modal';
+            modal.innerHTML = `
+                <div class="modal-overlay">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Request Help from ${mechanicName}</h3>
+                            <button class="close-modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="serviceRequestForm">
+                                <div class="form-group">
+                                    <label for="serviceType">Service Type</label>
+                                    <select id="serviceType" required>
+                                        <option value="">Select a service</option>
+                                        <option value="Battery Jump">Battery Jump</option>
+                                        <option value="Flat Tyre">Flat Tyre Repair</option>
+                                        <option value="Engine Trouble">Engine Trouble</option>
+                                        <option value="Emergency Tow">Emergency Tow</option>
+                                        <option value="General Maintenance">General Maintenance</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="vehicleInfo">Vehicle Information</label>
+                                    <input type="text" id="vehicleMake" placeholder="Vehicle Make (e.g., Honda, Toyota)" required>
+                                    <input type="text" id="vehicleModel" placeholder="Vehicle Model" required>
+                                    <input type="text" id="vehicleYear" placeholder="Year" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="description">Problem Description</label>
+                                    <textarea id="description" rows="4" placeholder="Describe the issue you're experiencing..." required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="customerName">Your Name</label>
+                                    <input type="text" id="customerName" placeholder="Your full name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="customerEmail">Email</label>
+                                    <input type="email" id="customerEmail" placeholder="your.email@example.com" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="customerPhone">Phone</label>
+                                    <input type="tel" id="customerPhone" placeholder="Your phone number" required>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn-cancel">Cancel</button>
+                                    <button type="submit" class="btn-submit">Send Request</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Add styles
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 10000;
+            `;
+
+            const style = document.createElement('style');
+            style.textContent = `
+                .modal-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.5);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    padding: 20px;
+                }
+                .modal-content {
+                    background: white;
+                    border-radius: 10px;
+                    max-width: 500px;
+                    width: 100%;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                }
+                .modal-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 20px;
+                    border-bottom: 1px solid #eee;
+                }
+                .modal-header h3 {
+                    margin: 0;
+                    color: #333;
+                }
+                .close-modal {
+                    background: none;
+                    border: none;
+                    font-size: 24px;
+                    cursor: pointer;
+                    color: #666;
+                }
+                .modal-body {
+                    padding: 20px;
+                }
+                .form-group {
+                    margin-bottom: 20px;
+                }
+                .form-group label {
+                    display: block;
+                    margin-bottom: 5px;
+                    font-weight: 500;
+                    color: #333;
+                }
+                .form-group input,
+                .form-group select,
+                .form-group textarea {
+                    width: 100%;
+                    padding: 10px;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                    font-size: 14px;
+                }
+                .form-group input:focus,
+                .form-group select:focus,
+                .form-group textarea:focus {
+                    outline: none;
+                    border-color: #FFC107;
+                }
+                .form-actions {
+                    display: flex;
+                    gap: 10px;
+                    justify-content: flex-end;
+                    margin-top: 20px;
+                }
+                .btn-cancel, .btn-submit {
+                    padding: 10px 20px;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 14px;
+                }
+                .btn-cancel {
+                    background: #f5f5f5;
+                    color: #333;
+                }
+                .btn-submit {
+                    background: #FFC107;
+                    color: white;
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Add to page
+            document.body.appendChild(modal);
+
+            // Add event listeners
+            modal.querySelector('.close-modal').addEventListener('click', () => {
+                modal.remove();
+            });
+
+            modal.querySelector('.btn-cancel').addEventListener('click', () => {
+                modal.remove();
+            });
+
+            modal.querySelector('#serviceRequestForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = {
+                    latitude: location.lat,
+                    longitude: location.lng,
+                    serviceType: document.getElementById('serviceType').value,
+                    description: document.getElementById('description').value,
+                    vehicleInfo: {
+                        make: document.getElementById('vehicleMake').value,
+                        model: document.getElementById('vehicleModel').value,
+                        year: document.getElementById('vehicleYear').value
+                    },
+                    customerInfo: {
+                        name: document.getElementById('customerName').value,
+                        email: document.getElementById('customerEmail').value,
+                        phone: document.getElementById('customerPhone').value
+                    }
+                };
+
+                try {
+                    const submitBtn = modal.querySelector('.btn-submit');
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Sending...';
+
+                    const response = await window.mechanicFinder.requestHelp(formData);
+                    
+                    modal.remove();
+                    alert(`Service request sent successfully! ${response.nearbyMechanics} nearby mechanics have been notified.`);
+                    
+                } catch (error) {
+                    console.error('Failed to send service request:', error);
+                    alert('Failed to send service request. Please try again.');
+                    
+                    const submitBtn = modal.querySelector('.btn-submit');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Send Request';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

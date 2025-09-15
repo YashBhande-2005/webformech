@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mechanic Registration - Urban Mechanic Partners</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="js/api.js" defer></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Urban Mechanic Partners</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#about">About</a></li>
+                <li><a href="index.html#services">Services</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+                <li><a href="login.html" class="btn-login">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="auth-container">
+        <div class="auth-form">
+            <h2>Mechanic Registration</h2>
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" name="fullName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                </div>
+                <div id="passwordError" class="error-message"></div>
+                
+                <div class="form-group">
+                    <label for="specialization">Specialization</label>
+                    <select id="specialization" name="specialization" required>
+                        <option value="">Select your specialization</option>
+                        <option value="general">General Auto Repair</option>
+                        <option value="engine">Engine Specialist</option>
+                        <option value="electrical">Electrical Systems</option>
+                        <option value="transmission">Transmission Repair</option>
+                        <option value="brakes">Brake Specialist</option>
+                        <option value="hvac">HVAC Repair</option>
+                        <option value="bodywork">Body Work & Painting</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="experience">Years of Experience</label>
+                    <input type="number" id="experience" name="experience" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="address">Workshop Address</label>
+                    <textarea id="address" name="address" rows="3" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <input type="text" id="city" name="city" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="zipCode">ZIP Code</label>
+                    <input type="text" id="zipCode" name="zipCode" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="serviceRadius">Service Radius (km)</label>
+                    <input type="number" id="serviceRadius" name="serviceRadius" min="1" max="100" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="certifications">Certifications (optional)</label>
+                    <textarea id="certifications" name="certifications" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Brief Description of Services</label>
+                    <textarea id="description" name="description" rows="5" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="terms" name="terms" required>
+                        I agree to the <a href="#">Terms and Conditions</a> and <a href="#">Privacy Policy</a>
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Register</button>
+                <div id="registrationError" class="error-message"></div>
+            </form>
+            
+            <script>
+                document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    // Clear previous error messages
+                    document.getElementById('passwordError').textContent = '';
+                    document.getElementById('registrationError').textContent = '';
+                    
+                    const name = document.getElementById('fullName').value;
+                    const email = document.getElementById('email').value;
+                    const phone = document.getElementById('phone').value;
+                    const password = document.getElementById('password').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    
+                    // Validate passwords match
+                    if (password !== confirmPassword) {
+                        document.getElementById('passwordError').textContent = 'Passwords do not match';
+                        return;
+                    }
+                    
+                    // Prepare mechanic data
+                    const mechanicData = {
+                        name,
+                        email,
+                        phone,
+                        password,
+                        role: 'mechanic',
+                        specialization: document.getElementById('specialization').value,
+                        experience: document.getElementById('experience').value,
+                        address: document.getElementById('address').value,
+                        city: document.getElementById('city').value,
+                        zipCode: document.getElementById('zipCode').value,
+                        serviceRadius: document.getElementById('serviceRadius').value,
+                        certifications: document.getElementById('certifications').value,
+                        description: document.getElementById('description').value
+                    };
+                    
+                    try {
+                        console.log('Attempting registration with:', mechanicData);
+                        const response = await window.API.auth.register(mechanicData);
+                        console.log('Registration response:', response);
+                        
+                        if (response.success || response.token) {
+                            // Store token in localStorage
+                            localStorage.setItem('token', response.token);
+                            console.log('Token stored, redirecting...');
+                            
+                            // Redirect to dashboard
+                            window.location.href = 'dashboard.html';
+                        } else {
+                            const errorMsg = response.message || response.error || 'Registration failed. Please try again.';
+                            console.error('Registration failed:', errorMsg);
+                            document.getElementById('registrationError').textContent = errorMsg;
+                        }
+                    } catch (error) {
+                        console.error('Registration error:', error);
+                        console.error('Error details:', error.message);
+                        document.getElementById('registrationError').textContent = `Registration failed: ${error.message}. Please check if the server is running.`;
+                    }
+                });
+            </script>
+            
+            <div class="auth-links">
+                <p>Already have an account? <a href="login.html">Login here</a></p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">Urban Mechanic Partners</div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Company</h4>
+                        <ul>
+                            <li><a href="index.html#about">About Us</a></li>
+                            <li><a href="index.html#services">Services</a></li>
+                            <li><a href="index.html#contact">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>For Mechanics</h4>
+                        <ul>
+                            <li><a href="register.html">Register</a></li>
+                            <li><a href="login.html">Login</a></li>
+                            <li><a href="#">FAQ</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <ul>
+                            <li><a href="#">Terms of Service</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Urban Mechanic Partners. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/api-integration.js"></script>
+    <script src="scripts.js"></script>
+</body>
+</html>

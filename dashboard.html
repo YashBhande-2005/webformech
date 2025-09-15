@@ -1,0 +1,708 @@
+11<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Urban Mechanic Partners</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/notifications.css">
+    <script src="js/api.js" defer></script>
+    <script src="js/api-integration.js" defer></script>
+    <script src="js/notification-service.js" defer></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Urban Mechanic Partners</div>
+            <ul class="nav-links">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="find-mechanic.html">Find Mechanics</a></li>
+                <li><a href="#profile" id="profile-link">My Profile</a></li>
+                <li><a href="#requests" id="requests-link">Service Requests</a></li>
+                <li>
+                    <div class="notification-icon-container">
+                        <a href="#" id="notification-bell" class="notification-bell">
+                            <span class="bell-icon">🔔</span>
+                            <span id="notification-count" class="notification-count">0</span>
+                        </a>
+                        <div id="notification-dropdown" class="notification-dropdown">
+                            <div class="notification-header">
+                                <h3>Notifications</h3>
+                                <button id="mark-all-read">Mark all as read</button>
+                            </div>
+                            <div id="notification-list" class="notification-list">
+                                <!-- Notifications will be inserted here -->
+                                <div class="empty-notification">No new notifications</div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li><a href="#" id="logout">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="dashboard">
+        <div class="dashboard-header">
+            <div class="container">
+                <h1 class="dashboard-title"><span id="role-title">Dashboard</span></h1>
+                <p>Welcome back, <span id="user-name">Loading...</span></p>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <div class="container">
+                <div class="dashboard-card">
+                    <h3>Recent Service Requests</h3>
+                    <div id="service-requests-list">
+                        <p class="loading-message">Loading service requests...</p>
+                    </div>
+                    <div class="view-all">
+                        <a href="#" id="view-all-requests">View all service requests</a>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Reviews</h3>
+                    <div id="reviews-list">
+                        <p class="loading-message">Loading reviews...</p>
+                    </div>
+                    <div class="view-all">
+                        <a href="#" id="view-all-reviews">View all reviews</a>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card mechanic-only" style="display: none;">
+                    <h3>Availability Status</h3>
+                    <div class="availability-toggle">
+                        <label class="switch">
+                            <input type="checkbox" id="availabilityToggle">
+                            <span class="slider round"></span>
+                        </label>
+                        <span id="availabilityStatus">Currently Unavailable</span>
+                    </div>
+                    <button id="updateAvailability" class="btn btn-primary">Update Availability</button>
+                </div>
+                
+                <div class="dashboard-card customer-only" style="display: none;">
+                    <h3>Create New Service Request</h3>
+                    <p>Need a mechanic? Create a new service request to find mechanics in your area.</p>
+                    <button id="newRequestBtn" class="btn btn-primary">New Service Request</button>
+                </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Performance Overview</h3>
+                    <div class="stats-container">
+                        <div class="stat-item">
+                            <div class="stat-value">4.8</div>
+                            <div class="stat-label">Average Rating</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">23</div>
+                            <div class="stat-label">Jobs Completed</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">15</div>
+                            <div class="stat-label">Repeat Customers</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">89%</div>
+                            <div class="stat-label">Response Rate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Quick Actions</h3>
+                    <div class="quick-actions">
+                        <a href="profile.html" class="quick-action-btn">
+                            <div class="quick-action-icon">👤</div>
+                            <div class="quick-action-text">Update Profile</div>
+                        </a>
+                        <a href="availability.html" class="quick-action-btn">
+                            <div class="quick-action-icon">📅</div>
+                            <div class="quick-action-text">Set Availability</div>
+                        </a>
+                        <a href="services.html" class="quick-action-btn">
+                            <div class="quick-action-icon">🔧</div>
+                            <div class="quick-action-text">Manage Services</div>
+                        </a>
+                        <a href="reviews.html" class="quick-action-btn">
+                            <div class="quick-action-icon">⭐</div>
+                            <div class="quick-action-text">View Reviews</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            // Check authentication status
+            document.addEventListener('DOMContentLoaded', async function() {
+                // Initialize notification service
+                setupNotifications();
+                
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    // Redirect to login if no token
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                try {
+                    // Get current user profile
+                    const userData = await API.auth.getMe();
+                    
+                    if (!userData.success) {
+                        // Token invalid or expired
+                        localStorage.removeItem('token');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    
+                    // Update UI with user data
+                    const user = userData.data;
+                    document.getElementById('user-name').textContent = user.name;
+                    document.getElementById('role-title').textContent = 
+                        user.role === 'mechanic' ? 'Mechanic Dashboard' : 'Customer Dashboard';
+                    
+                    // Show/hide role-specific elements
+                    const mechanicElements = document.querySelectorAll('.mechanic-only');
+                    const customerElements = document.querySelectorAll('.customer-only');
+                    
+                    if (user.role === 'mechanic') {
+                        mechanicElements.forEach(el => el.style.display = 'block');
+                        customerElements.forEach(el => el.style.display = 'none');
+                        
+                        // Set availability toggle
+                        document.getElementById('availabilityToggle').checked = user.isAvailable || false;
+                        document.getElementById('availabilityStatus').textContent = 
+                            user.isAvailable ? 'Currently Available' : 'Currently Unavailable';
+                            
+                        // Load mechanic-specific data
+                        loadMechanicRequests(user._id);
+                        loadMechanicReviews(user._id);
+                        
+                        // Setup availability toggle
+                        document.getElementById('updateAvailability').addEventListener('click', async function() {
+                            const isAvailable = document.getElementById('availabilityToggle').checked;
+                            
+                            try {
+                                const response = await API.mechanics.updateAvailability(user._id, { isAvailable });
+                                
+                                if (response.success) {
+                                    document.getElementById('availabilityStatus').textContent = 
+                                        isAvailable ? 'Currently Available' : 'Currently Unavailable';
+                                    alert('Availability updated successfully!');
+                                } else {
+                                    alert('Failed to update availability: ' + (response.error || 'Unknown error'));
+                                }
+                            } catch (error) {
+                                console.error('Availability update error:', error);
+                                alert('An error occurred while updating availability');
+                            }
+                        });
+
+                        // Start polling for notifications (mechanic only)
+                        try {
+                            const mechRes = await API.mechanics.getAllMechanics(`?user=${user._id}`);
+                            const mechanicId = mechRes && mechRes.data && mechRes.data[0] ? mechRes.data[0]._id : null;
+                            if (mechanicId && window.notificationSystem) {
+                                window.notificationSystem.startPolling(mechanicId, 30000);
+                            } else {
+                                console.warn('Mechanic profile not found; notifications polling not started.');
+                            }
+                        } catch (e) {
+                            console.warn('Failed to initialize notifications polling:', e);
+                        }
+                    } else {
+                        mechanicElements.forEach(el => el.style.display = 'none');
+                        customerElements.forEach(el => el.style.display = 'block');
+                        
+                        // Load customer-specific data
+                        loadCustomerRequests();
+                        
+                        // Setup new request button
+                        document.getElementById('newRequestBtn').addEventListener('click', function() {
+                            showNewRequestForm();
+                        });
+                    }
+                    
+                    // Setup logout
+                    document.getElementById('logout').addEventListener('click', function(e) {
+                        e.preventDefault();
+                        API.auth.logout()
+                            .then(() => {
+                                localStorage.removeItem('token');
+                                window.location.href = 'index.html';
+                            })
+                            .catch(error => {
+                                console.error('Logout error:', error);
+                                localStorage.removeItem('token');
+                                window.location.href = 'index.html';
+                            });
+                    });
+                    
+                } catch (error) {
+                    console.error('Authentication error:', error);
+                    localStorage.removeItem('token');
+                    window.location.href = 'login.html';
+                }
+            });
+            
+            // Load mechanic service requests
+            async function loadMechanicRequests(mechanicId) {
+                try {
+                    const response = await API.serviceRequests.getMechanicRequests(mechanicId);
+                    const requestsList = document.getElementById('service-requests-list');
+                    
+                    if (response.success && response.data.length > 0) {
+                        requestsList.innerHTML = '';
+                        
+                        response.data.slice(0, 3).forEach(request => {
+                            const requestElement = document.createElement('div');
+                            requestElement.className = 'request-item';
+                            requestElement.innerHTML = `
+                                <div class="request-header">
+                                    <div class="request-title">${request.title}</div>
+                                    <div class="request-status ${request.status.toLowerCase()}">${request.status}</div>
+                                </div>
+                                <div class="request-description">${request.description.substring(0, 100)}${request.description.length > 100 ? '...' : ''}</div>
+                                <div class="request-details">
+                                    <div>Vehicle: ${request.vehicleDetails}</div>
+                                    <div>Customer: ${request.customer.name}</div>
+                                    <div>Date: ${new Date(request.createdAt).toLocaleDateString()}</div>
+                                </div>
+                                ${request.status === 'PENDING' ? 
+                                    `<div class="request-actions">
+                                        <button class="btn btn-primary btn-sm accept-btn" data-id="${request._id}">Accept</button>
+                                        <button class="btn btn-secondary btn-sm decline-btn" data-id="${request._id}">Decline</button>
+                                    </div>` : ''}
+                            `;
+                            requestsList.appendChild(requestElement);
+                        });
+                        
+                        // Add event listeners for accept/decline buttons
+                        document.querySelectorAll('.accept-btn').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const requestId = this.getAttribute('data-id');
+                                acceptRequest(requestId);
+                            });
+                        });
+                        
+                        document.querySelectorAll('.decline-btn').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const requestId = this.getAttribute('data-id');
+                                declineRequest(requestId);
+                            });
+                        });
+                        
+                    } else {
+                        requestsList.innerHTML = '<p>No service requests yet.</p>';
+                    }
+                } catch (error) {
+                    console.error('Error loading service requests:', error);
+                    document.getElementById('service-requests-list').innerHTML = '<p>Failed to load service requests.</p>';
+                }
+            }
+            
+            // Load customer service requests
+            async function loadCustomerRequests() {
+                try {
+                    const response = await API.serviceRequests.getMyRequests();
+                    const requestsList = document.getElementById('service-requests-list');
+                    
+                    if (response.success && response.data.length > 0) {
+                        requestsList.innerHTML = '';
+                        
+                        response.data.slice(0, 3).forEach(request => {
+                            const requestElement = document.createElement('div');
+                            requestElement.className = 'request-item';
+                            requestElement.innerHTML = `
+                                <div class="request-header">
+                                    <div class="request-title">${request.title}</div>
+                                    <div class="request-status ${request.status.toLowerCase()}">${request.status}</div>
+                                </div>
+                                <div class="request-description">${request.description.substring(0, 100)}${request.description.length > 100 ? '...' : ''}</div>
+                                <div class="request-details">
+                                    <div>Vehicle: ${request.vehicleDetails}</div>
+                                    <div>Location: ${request.location.formattedAddress}</div>
+                                    <div>Date: ${new Date(request.createdAt).toLocaleDateString()}</div>
+                                </div>
+                                ${request.mechanic ? `<div class="request-mechanic">Mechanic: ${request.mechanic.name}</div>` : ''}
+                                ${request.status === 'COMPLETED' && !request.isReviewed ? 
+                                    `<button class="btn btn-secondary btn-sm add-review-btn" data-request-id="${request._id}" data-mechanic-id="${request.mechanic._id}">Add Review</button>` : ''}
+                            `;
+                            requestsList.appendChild(requestElement);
+                        });
+                        
+                        // Add event listeners for review buttons
+                        document.querySelectorAll('.add-review-btn').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const requestId = this.getAttribute('data-request-id');
+                                const mechanicId = this.getAttribute('data-mechanic-id');
+                                showReviewForm(requestId, mechanicId);
+                            });
+                        });
+                        
+                    } else {
+                        requestsList.innerHTML = '<p>No service requests yet.</p>';
+                    }
+                } catch (error) {
+                    console.error('Error loading service requests:', error);
+                    document.getElementById('service-requests-list').innerHTML = '<p>Failed to load service requests.</p>';
+                }
+            }
+            
+            // Load mechanic reviews
+            async function loadMechanicReviews(mechanicId) {
+                try {
+                    const response = await API.reviews.getMechanicReviews(mechanicId);
+                    const reviewsList = document.getElementById('reviews-list');
+                    
+                    if (response.success && response.data.length > 0) {
+                        reviewsList.innerHTML = '';
+                        
+                        response.data.slice(0, 3).forEach(review => {
+                            const reviewElement = document.createElement('div');
+                            reviewElement.className = 'review-item';
+                            reviewElement.innerHTML = `
+                                <div class="review-header">
+                                    <div class="review-rating">
+                                        ${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}
+                                    </div>
+                                    <div class="review-date">${new Date(review.createdAt).toLocaleDateString()}</div>
+                                </div>
+                                <div class="review-title">${review.title}</div>
+                                <div class="review-text">${review.text.substring(0, 100)}${review.text.length > 100 ? '...' : ''}</div>
+                                <div class="review-customer">By: ${review.customer.name}</div>
+                            `;
+                            reviewsList.appendChild(reviewElement);
+                        });
+                    } else {
+                        reviewsList.innerHTML = '<p>No reviews yet.</p>';
+                    }
+                } catch (error) {
+                    console.error('Error loading reviews:', error);
+                    document.getElementById('reviews-list').innerHTML = '<p>Failed to load reviews.</p>';
+                }
+            }
+            
+            // Accept service request
+            async function acceptRequest(requestId) {
+                try {
+                    const response = await API.serviceRequests.acceptRequest(requestId);
+                    
+                    if (response.success) {
+                        alert('Service request accepted successfully!');
+                        // Reload service requests to update UI
+                        const userData = await API.auth.getMe();
+                        loadMechanicRequests(userData.data._id);
+                    } else {
+                        alert('Failed to accept request: ' + (response.error || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Request acceptance error:', error);
+                    alert('An error occurred while accepting the request');
+                }
+            }
+            
+            // Decline service request
+            async function declineRequest(requestId) {
+                // In a real application, you would implement this functionality
+                alert('Decline functionality not implemented in this demo');
+            }
+            
+            // Show review form modal
+            function showReviewForm(requestId, mechanicId) {
+                // Create modal for review submission
+                const modal = document.createElement('div');
+                modal.className = 'modal show';
+                modal.innerHTML = `
+                    <div class="modal-content">
+                        <span class="close-btn">&times;</span>
+                        <h3>Add Review</h3>
+                        <form id="reviewForm">
+                            <div class="form-group">
+                                <label for="reviewTitle">Title</label>
+                                <input type="text" id="reviewTitle" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="reviewRating">Rating</label>
+                                <select id="reviewRating" required>
+                                    <option value="5">5 - Excellent</option>
+                                    <option value="4">4 - Very Good</option>
+                                    <option value="3">3 - Good</option>
+                                    <option value="2">2 - Fair</option>
+                                    <option value="1">1 - Poor</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="reviewText">Review</label>
+                                <textarea id="reviewText" rows="5" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                        </form>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                
+                // Close modal functionality
+                modal.querySelector('.close-btn').addEventListener('click', function() {
+                    document.body.removeChild(modal);
+                });
+                
+                // Submit review
+                modal.querySelector('#reviewForm').addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const reviewData = {
+                        title: document.getElementById('reviewTitle').value,
+                        text: document.getElementById('reviewText').value,
+                        rating: parseInt(document.getElementById('reviewRating').value),
+                        mechanic: mechanicId,
+                        serviceRequest: requestId
+                    };
+                    
+                    try {
+                        const response = await API.reviews.createReview(reviewData);
+                        
+                        if (response.success) {
+                            alert('Review submitted successfully!');
+                            document.body.removeChild(modal);
+                            // Reload service requests to update UI
+                            loadCustomerRequests();
+                        } else {
+                            alert('Failed to submit review: ' + (response.error || 'Unknown error'));
+                        }
+                    } catch (error) {
+                        console.error('Review submission error:', error);
+                        alert('An error occurred while submitting review');
+                    }
+                });
+            }
+            
+            // Show new service request form
+            function showNewRequestForm() {
+                // Create modal for new service request
+                const modal = document.createElement('div');
+                modal.className = 'modal show';
+                modal.innerHTML = `
+                    <div class="modal-content">
+                        <span class="close-btn">&times;</span>
+                        <h3>New Service Request</h3>
+                        <form id="newRequestForm">
+                            <div class="form-group">
+                                <label for="requestTitle">Title</label>
+                                <input type="text" id="requestTitle" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="requestDescription">Description</label>
+                                <textarea id="requestDescription" rows="5" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="vehicleDetails">Vehicle Details</label>
+                                <input type="text" id="vehicleDetails" placeholder="Year, Make, Model" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="requestAddress">Service Address</label>
+                                <textarea id="requestAddress" rows="3" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Request</button>
+                        </form>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                
+                // Close modal functionality
+                modal.querySelector('.close-btn').addEventListener('click', function() {
+                    document.body.removeChild(modal);
+                });
+                
+                // Submit new request
+                modal.querySelector('#newRequestForm').addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const requestData = {
+                        title: document.getElementById('requestTitle').value,
+                        description: document.getElementById('requestDescription').value,
+                        vehicleDetails: document.getElementById('vehicleDetails').value,
+                        address: document.getElementById('requestAddress').value
+                    };
+                    
+                    try {
+                        const response = await API.serviceRequests.createRequest(requestData);
+                        
+                        if (response.success) {
+                            alert('Service request submitted successfully!');
+                            document.body.removeChild(modal);
+                            // Reload service requests to update UI
+                            loadCustomerRequests();
+                        } else {
+                            alert('Failed to submit request: ' + (response.error || 'Unknown error'));
+                        }
+                    } catch (error) {
+                        console.error('Service request submission error:', error);
+                        alert('An error occurred while submitting service request');
+                    }
+                });
+            }
+            // Function to set up notifications
+            function setupNotifications() {
+                if (typeof NotificationService === 'undefined') {
+                    console.warn('NotificationService not available; skipping notifications UI setup.');
+                    return;
+                }
+                // Update notification count
+                updateNotificationCount();
+                
+                // Listen for new notifications
+                document.addEventListener('newNotification', function(e) {
+                    updateNotificationCount();
+                    updateNotificationList();
+                });
+                
+                // Toggle notification dropdown
+                document.getElementById('notification-bell').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const dropdown = document.getElementById('notification-dropdown');
+                    dropdown.classList.toggle('show');
+                    
+                    if (dropdown.classList.contains('show')) {
+                        updateNotificationList();
+                    }
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    const bell = document.getElementById('notification-bell');
+                    const dropdown = document.getElementById('notification-dropdown');
+                    
+                    if (!bell.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+                
+                // Mark all as read
+                document.getElementById('mark-all-read').addEventListener('click', function() {
+                    NotificationService.markAllAsRead();
+                    updateNotificationCount();
+                    updateNotificationList();
+                });
+            }
+            
+            // Function to update notification count
+            function updateNotificationCount() {
+                const count = NotificationService.getUnreadCount();
+                const countElement = document.getElementById('notification-count');
+                
+                if (count > 0) {
+                    countElement.textContent = count > 9 ? '9+' : count;
+                    countElement.style.display = 'flex';
+                } else {
+                    countElement.style.display = 'none';
+                }
+            }
+            
+            // Function to update notification list
+            function updateNotificationList() {
+                const notificationList = document.getElementById('notification-list');
+                const notifications = NotificationService.getAll();
+                
+                if (notifications.length === 0) {
+                    notificationList.innerHTML = '<div class="empty-notification">No notifications</div>';
+                    return;
+                }
+                
+                notificationList.innerHTML = '';
+                
+                notifications.forEach(notification => {
+                    const notificationItem = document.createElement('div');
+                    notificationItem.className = `notification-item ${notification.read ? '' : 'unread'}`;
+                    notificationItem.setAttribute('data-id', notification.id);
+                    
+                    let distanceHtml = '';
+                    if (notification.distance) {
+                        distanceHtml = `<span class="notification-distance">${notification.distance} miles</span>`;
+                    }
+                    
+                    notificationItem.innerHTML = `
+                        <div class="notification-content">
+                            <div class="notification-title">${notification.title}</div>
+                            <div class="notification-message">${notification.message}</div>
+                            <div class="notification-meta">
+                                <span>${NotificationService.formatTimeAgo(notification.timestamp)}</span>
+                                ${distanceHtml}
+                            </div>
+                        </div>
+                    `;
+                    
+                    notificationList.appendChild(notificationItem);
+                    
+                    // Mark as read when clicked
+                    notificationItem.addEventListener('click', function() {
+                        const id = parseInt(this.getAttribute('data-id'));
+                        NotificationService.markAsRead(id);
+                        this.classList.remove('unread');
+                        updateNotificationCount();
+                    });
+                });
+            }
+        </script>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">Urban Mechanic Partners</div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Dashboard</h4>
+                        <ul>
+                            <li><a href="dashboard.html">Overview</a></li>
+                            <li><a href="profile.html">My Profile</a></li>
+                            <li><a href="notifications.html">Notifications</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Support</h4>
+                        <ul>
+                            <li><a href="#">Help Center</a></li>
+                            <li><a href="#">Contact Support</a></li>
+                            <li><a href="#">FAQ</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <ul>
+                            <li><a href="#">Terms of Service</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Urban Mechanic Partners. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Notification Example -->
+    <div class="notification" id="live-notification">
+        <div class="notification-icon">🔔</div>
+        <div class="notification-content">
+            <h4>New Service Request</h4>
+            <p>Customer Emily Wilson is looking for a mechanic near your area.</p>
+        </div>
+        <div class="notification-close">✕</div>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
