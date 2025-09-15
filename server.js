@@ -17,6 +17,11 @@ const { Server } = require('socket.io');
 // Load env vars
 dotenv.config();
 
+// Set default values for environment variables
+const PORT = process.env.PORT || 3000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/mechanics';
+
 // Connect to database
 const connectDB = require('./config/db');
 connectDB();
